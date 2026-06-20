@@ -1411,6 +1411,7 @@ DIETA: ${nuevaDieta} | ${nuevasComidas} comidas/día | Objetivo: ${nuevoObj}
 CLÍNICO: Condiciones: ${condiciones||'ninguna'} | Excluir: ${p.noCome||'nada'}
 ENTRENO: ${nuevoRutina}, ${nivel||'intermedio'}, ${nuevoFrec}d/sem, RIR ${rir||2}, énfasis ${enfasis||'ninguno'}
 SUPLEMENTOS OBLIGATORIOS DEL COACH — INCLUIR TODOS SIN EXCEPCIÓN: ${(suplementos||[]).join(', ')||'ninguno'}. Posología exacta guardada: ${nuevaPos||p.posologia||'usar dosis estándar'}. Solo estos suplementos, nada más.
+REGLAS DE ALIMENTOS — OBLIGATORIAS: 1) Todos los alimentos deben especificarse en GRAMOS y en CRUDO (peso antes de cocinar), nunca en porciones vagas ni en peso cocido. 2) Los macronutrientes (proteína, carbohidratos, grasas) deben repartirse de forma EQUITATIVA entre todas las comidas del día — ninguna comida debe concentrar desproporcionadamente los macros respecto a las demás.
 ${nuevasNotas?'Cambios/Notas: '+nuevasNotas:''}
 ${sexo==='M' ? 'RESTRICCIÓN FEMENINA: PROHIBIDO pectoral y espalda agarre abierto.' : ''}
 
@@ -2599,6 +2600,7 @@ DIETA: ${dieta} | ${comidas} comidas/día | Objetivo: ${objetivo}
 CLÍNICO: Intol: ${intol||'ninguna'} | Alergias: ${alergia||'ninguna'} | Condiciones: ${condiciones||'ninguna'} | Excluir: ${noCome||'nada'}
 ENTRENO: ${rutinaT}, ${nivel}, ${frec}d/sem, RIR ${rir}, énfasis ${enfasis}
 SUPLEMENTOS OBLIGATORIOS DEL COACH — DEBES incluir TODOS en el JSON sin excepción: ${suples.join(', ')||'ninguno'}. Posología exacta: ${posologia||'usar dosis estándar'}. NO agregues suplementos que no estén en esta lista.
+REGLAS DE ALIMENTOS — OBLIGATORIAS: 1) Todos los alimentos deben especificarse en GRAMOS y en CRUDO (peso antes de cocinar), nunca en porciones vagas ni en peso cocido. 2) Los macronutrientes (proteína, carbohidratos, grasas) deben repartirse de forma EQUITATIVA entre todas las comidas del día — ninguna comida debe concentrar desproporcionadamente los macros respecto a las demás.
 ${notas?'Notas: '+notas:''}
 ${cuello?`PERÍMETROS (cm): Cuello ${cuello} | Hombros ${espalda||'-'} | Brazo D ${brazoD||'-'} / I ${brazoI||'-'} | Cintura alta ${cinturaA||'-'} / baja ${cinturaB||'-'} | Cadera ${cadera||'-'} | Muslo D ${musloD||'-'} / I ${musloI||'-'} | Pantorrilla D ${pantoD||'-'} / I ${pantoI||'-'}`:''}
 
