@@ -1,26 +1,28 @@
 <!DOCTYPE html>
-<!-- SALUD VITAL v26 - 20260604233807 -->
-<!-- SALUD VITAL 2026-06-03-v5-FIREBASE -->
-<html lang="es">
-<head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/>
-<meta name="theme-color" content="#1a1f1a"/>
-<meta name="apple-mobile-web-app-capable" content="yes"/>
-<meta name="apple-mobile-web-app-title" content="Salud Vital"/>
+<!-- saved from url=(0049)file:///C:/Users/jazet/Downloads/index_v34_1.html -->
+<html lang="es"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#1a1f1a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Salud Vital">
 <title>Salud Vital</title>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css"/>
-<link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;500;600&family=Rajdhani:wght@400;500;600&display=swap" rel="stylesheet"/>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<link rel="manifest" href="file:///C:/Users/jazet/Downloads/manifest.json">
+<link rel="icon" type="image/png" sizes="192x192" href="file:///C:/Users/jazet/Downloads/icons/icon-192.png">
+<link rel="icon" type="image/png" sizes="512x512" href="file:///C:/Users/jazet/Downloads/icons/icon-512.png">
+<link rel="apple-touch-icon" href="file:///C:/Users/jazet/Downloads/icons/apple-touch-icon.png">
+<link rel="stylesheet" href="./Salud Vital_files/tabler-icons.min.css">
+<link href="./Salud Vital_files/css2" rel="stylesheet">
+<script src="./Salud Vital_files/chart.umd.min.js.descarga"></script>
 
 <!-- ══════════════════════════════════════════════════════════
      FIREBASE — Reemplaza los valores con los de tu proyecto
      Instrucciones: ver SETUP.md
 ══════════════════════════════════════════════════════════ -->
 <!-- Firebase SDKs (compat - funciona en todos los navegadores) -->
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script src="./Salud Vital_files/firebase-app-compat.js.descarga"></script>
+<script src="./Salud Vital_files/firebase-auth-compat.js.descarga"></script>
+<script src="./Salud Vital_files/firebase-firestore-compat.js.descarga"></script>
 <script>
 const firebaseConfig = {
   apiKey:            "AIzaSyCZDbZZNr05Ziog_Cr91K9ygQ4Rix051ms",
@@ -461,9 +463,9 @@ main{padding-top:var(--nav)}
     </div>
   </div>
   <div class="nav-tabs" id="navTabs" style="display:none">
-    <button class="ntab active" onclick="goTab('dashboard')"><i class="ti ti-layout-dashboard"></i> Dashboard</button>
-    <button class="ntab" onclick="goTab('nuevo')" id="tabNuevo"><i class="ti ti-user-plus"></i> Nuevo</button>
-    <button class="ntab" onclick="goTab('entrenadores')" id="tabEntrenadores" style="display:none"><i class="ti ti-users"></i> Entrenadores</button>
+    <button class="ntab active" onclick="goTab(&#39;dashboard&#39;)"><i class="ti ti-layout-dashboard"></i> Dashboard</button>
+    <button class="ntab" onclick="goTab(&#39;nuevo&#39;)" id="tabNuevo"><i class="ti ti-user-plus"></i> Nuevo</button>
+    <button class="ntab" onclick="goTab(&#39;entrenadores&#39;)" id="tabEntrenadores" style="display:none"><i class="ti ti-users"></i> Entrenadores</button>
   </div>
   <div class="nav-right">
     <div id="roleLabel" style="display:none"></div>
@@ -474,7 +476,7 @@ main{padding-top:var(--nav)}
 <main id="appMain">
 
 <!-- SPLASH -->
-<div class="screen active" id="s-splash">
+<div class="screen" id="s-splash">
   <div class="splash">
     <div class="splash-spin"></div>
     <div style="font-size:14px;color:var(--tx2)">Cargando Salud Vital...</div>
@@ -485,24 +487,24 @@ main{padding-top:var(--nav)}
 <div class="screen" id="s-suspendido">
   <div class="splash">
     <div style="font-size:48px;margin-bottom:1rem">🔒</div>
-    <div style="font-family:'Rajdhani',sans-serif;font-size:24px;font-weight:600;color:var(--re);margin-bottom:.75rem">Cuenta Suspendida</div>
+    <div style="font-family:&#39;Rajdhani&#39;,sans-serif;font-size:24px;font-weight:600;color:var(--re);margin-bottom:.75rem">Cuenta Suspendida</div>
     <div style="font-size:14px;color:var(--tx2);text-align:center;max-width:320px;line-height:1.6">Tu acceso está temporalmente pausado. Contacta a tu coach para más información.</div>
-    <button onclick="doLogout()" style="margin-top:2rem;padding:10px 24px;background:none;border:1px solid var(--b2);border-radius:var(--rad);color:var(--tx2);cursor:pointer;font-family:'Exo 2',sans-serif;font-size:14px">Cerrar sesión</button>
+    <button onclick="doLogout()" style="margin-top:2rem;padding:10px 24px;background:none;border:1px solid var(--b2);border-radius:var(--rad);color:var(--tx2);cursor:pointer;font-family:&#39;Exo 2&#39;,sans-serif;font-size:14px">Cerrar sesión</button>
   </div>
 </div>
 
 <!-- LOGIN -->
-<div class="screen" id="s-login">
+<div class="screen active" id="s-login">
   <div class="login-bg"><div class="login-card">
     <div class="login-logo">
       <div><span class="login-logo-sv">SALUD <span class="login-logo-vt">VITAL</span></span></div>
       <div class="login-tag">Clínica de Recomposición Corporal</div>
       <div class="login-sub">Ingresa tus credenciales</div>
     </div>
-    <div class="field"><label>Correo electrónico</label><input type="email" id="loginEmail" placeholder="correo@ejemplo.com" autocomplete="email"/></div>
+    <div class="field"><label>Correo electrónico</label><input type="email" id="loginEmail" placeholder="correo@ejemplo.com" autocomplete="email"></div>
     <div class="field"><label>Contraseña</label>
       <div class="pass-wrap">
-        <input type="password" id="loginPass" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()"/>
+        <input type="password" id="loginPass" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key===&#39;Enter&#39;)doLogin()">
         <button class="pass-eye" onclick="togglePassVis()" type="button"><i class="ti ti-eye" id="eyeIcon"></i></button>
       </div>
     </div>
@@ -521,9 +523,9 @@ main{padding-top:var(--nav)}
       <div class="field col2">
         <label>Logo (imagen PNG/JPG — recomendado 300×100 px)</label>
         <div class="upload-zone" style="min-height:80px" id="logoUploadZone">
-          <input type="file" accept="image/*" id="logoFileInput" onchange="handleLogoUpload(event)" style="position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%"/>
+          <input type="file" accept="image/*" id="logoFileInput" onchange="handleLogoUpload(event)" style="position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%">
           <div id="logoPreview" style="display:none;text-align:center">
-            <img id="logoPreviewImg" style="max-height:60px;max-width:200px;object-fit:contain;border-radius:6px"/>
+            <img id="logoPreviewImg" style="max-height:60px;max-width:200px;object-fit:contain;border-radius:6px">
             <div style="font-size:11px;color:var(--tx3);margin-top:4px">Logo actual</div>
           </div>
           <div id="logoUploadHint">
@@ -535,7 +537,9 @@ main{padding-top:var(--nav)}
       </div>
       <div class="field col2">
         <label>Pie de página — nombre, certificaciones, contacto</label>
-        <textarea id="piePaginaInput" rows="3" placeholder="Ej: Coach Luis Mendoza | Nutriólogo Certificado ISSA&#10;📍 Xalapa, Veracruz | 📱 229 123 4567&#10;🌐 www.coachluismendoza.com"></textarea>
+        <textarea id="piePaginaInput" rows="3" placeholder="Ej: Coach Luis Mendoza | Nutriólogo Certificado ISSA
+📍 Xalapa, Veracruz | 📱 229 123 4567
+🌐 www.coachluismendoza.com"></textarea>
       </div>
     </div>
     <div style="display:flex;gap:8px;flex-wrap:wrap">
@@ -549,7 +553,7 @@ main{padding-top:var(--nav)}
 
   <div class="page-header">
     <div class="page-title">Mis <span>Pacientes</span></div>
-    <button class="btn-sm" onclick="goTab('nuevo')"><i class="ti ti-user-plus"></i> Nuevo</button>
+    <button class="btn-sm" onclick="goTab(&#39;nuevo&#39;)"><i class="ti ti-user-plus"></i> Nuevo</button>
   </div>
   <div class="stats-grid">
     <div class="stat-card sc-green"><div class="stat-lbl">Total</div><div class="stat-val" id="stTotal">—</div><div class="stat-sub">pacientes</div></div>
@@ -571,11 +575,11 @@ main{padding-top:var(--nav)}
   <div class="card" id="newCoachForm" style="display:none">
     <div class="card-title"><i class="ti ti-user-shield"></i> Nuevo entrenador</div>
     <div class="form-2col">
-      <div class="field col2"><label>Nombre completo *</label><input type="text" id="coach-nombre" placeholder="Ej: Luis Mendoza"/></div>
-      <div class="field"><label>Correo electrónico *</label><input type="email" id="coach-email" placeholder="luis@email.com"/></div>
-      <div class="field"><label>Contraseña inicial *</label><input type="password" id="coach-pass" placeholder="mínimo 6 caracteres"/></div>
-      <div class="field"><label>Especialidad</label><input type="text" id="coach-especialidad" placeholder="Ej: Hipertrofia, Bikini NPC..."/></div>
-      <div class="field"><label>Teléfono / WhatsApp</label><input type="tel" id="coach-tel" placeholder="52 229 123 4567"/></div>
+      <div class="field col2"><label>Nombre completo *</label><input type="text" id="coach-nombre" placeholder="Ej: Luis Mendoza"></div>
+      <div class="field"><label>Correo electrónico *</label><input type="email" id="coach-email" placeholder="luis@email.com"></div>
+      <div class="field"><label>Contraseña inicial *</label><input type="password" id="coach-pass" placeholder="mínimo 6 caracteres"></div>
+      <div class="field"><label>Especialidad</label><input type="text" id="coach-especialidad" placeholder="Ej: Hipertrofia, Bikini NPC..."></div>
+      <div class="field"><label>Teléfono / WhatsApp</label><input type="tel" id="coach-tel" placeholder="52 229 123 4567"></div>
     </div>
     <button class="btn-primary btn-teal" onclick="createCoach()"><i class="ti ti-user-plus"></i> CREAR ENTRENADOR</button>
     <div class="loading-row" id="coachLoading"><div class="spinner-sm"></div><span>Creando entrenador...</span></div>
@@ -585,34 +589,34 @@ main{padding-top:var(--nav)}
 
 <!-- NUEVO PACIENTE -->
 <div class="screen" id="s-nuevo">
-<button class="back-btn" onclick="goTab('dashboard')"><i class="ti ti-arrow-left"></i> Volver</button>
+<button class="back-btn" onclick="goTab(&#39;dashboard&#39;)"><i class="ti ti-arrow-left"></i> Volver</button>
 <div class="page-title" style="margin-bottom:1.25rem">Nuevo <span>Paciente</span></div>
 
 <!-- DATOS PERSONALES -->
 <div class="card">
 <div class="card-title"><i class="ti ti-user"></i> Datos personales</div>
 <div class="form-2col">
-  <div class="field col2"><label>Nombre completo *</label><input type="text" id="np-nombre" placeholder="Ej: Ana García López"/></div>
-  <div class="field"><label>Correo electrónico (login) *</label><input type="email" id="np-email" placeholder="ana@correo.com" autocomplete="off"/></div>
-  <div class="field"><label>Contraseña *</label><input type="password" id="np-pass" placeholder="mínimo 6 caracteres"/></div>
-  <div class="field"><label>Teléfono / WhatsApp</label><input type="tel" id="np-tel" placeholder="52 229 123 4567"/></div>
+  <div class="field col2"><label>Nombre completo *</label><input type="text" id="np-nombre" placeholder="Ej: Ana García López"></div>
+  <div class="field"><label>Correo electrónico (login) *</label><input type="email" id="np-email" placeholder="ana@correo.com" autocomplete="off"></div>
+  <div class="field"><label>Contraseña *</label><input type="password" id="np-pass" placeholder="mínimo 6 caracteres"></div>
+  <div class="field"><label>Teléfono / WhatsApp</label><input type="tel" id="np-tel" placeholder="52 229 123 4567"></div>
 </div></div>
 
 <!-- DATOS ANTROPOMÉTRICOS -->
 <div class="card">
 <div class="card-title"><i class="ti ti-ruler-measure"></i> Datos antropométricos</div>
 <div class="form-2col">
-  <div class="field"><label>Edad (años) *</label><input type="number" id="np-edad" placeholder="30" min="10" max="99" oninput="calcFormula()"/></div>
+  <div class="field"><label>Edad (años) *</label><input type="number" id="np-edad" placeholder="30" min="10" max="99" oninput="calcFormula()"></div>
   <div class="field"><label>Sexo biológico *</label>
     <select id="np-sexo" onchange="calcFormula()"><option value="">Seleccionar</option><option value="H">Masculino</option><option value="M">Femenino</option></select>
   </div>
-  <div class="field"><label>Peso actual (kg) *</label><input type="number" id="np-peso" placeholder="70.5" step="0.1" oninput="calcFormula()"/></div>
-  <div class="field"><label>Talla (cm) *</label><input type="number" id="np-talla" placeholder="165" oninput="calcFormula()"/></div>
+  <div class="field"><label>Peso actual (kg) *</label><input type="number" id="np-peso" placeholder="70.5" step="0.1" oninput="calcFormula()"></div>
+  <div class="field"><label>Talla (cm) *</label><input type="number" id="np-talla" placeholder="165" oninput="calcFormula()"></div>
   <div class="field"><label>Nivel de actividad</label>
     <select id="np-actividad" onchange="calcFormula()">
       <option value="1.2">Sedentario (sin ejercicio)</option>
       <option value="1.375">Ligero (1-3 días/sem)</option>
-      <option value="1.55" selected>Moderado (3-5 días/sem)</option>
+      <option value="1.55" selected="">Moderado (3-5 días/sem)</option>
       <option value="1.725">Activo (6-7 días/sem)</option>
       <option value="1.9">Muy activo / atleta</option>
     </select>
@@ -620,7 +624,7 @@ main{padding-top:var(--nav)}
   <div class="field"><label>Objetivo principal</label>
     <select id="np-objetivo" onchange="calcFormula()">
       <option value="bajar">Pérdida de grasa</option>
-      <option value="mantener" selected>Mantenimiento</option>
+      <option value="mantener" selected="">Mantenimiento</option>
       <option value="subir">Ganancia muscular</option>
       <option value="recomp">Recomposición corporal</option>
     </select>
@@ -628,17 +632,17 @@ main{padding-top:var(--nav)}
 </div>
 <div class="section-label" style="margin-top:.5rem">Perímetros corporales (cm) — opcionales</div>
 <div class="form-2col">
-  <div class="field"><label>Cuello (cm)</label><input type="number" id="np-cuello" placeholder="Ej: 38" step="0.1" min="20" max="60"/></div>
-  <div class="field"><label>Hombros / Espalda (cm)</label><input type="number" id="np-espalda" placeholder="Ej: 115" step="0.1" min="60" max="180"/></div>
-  <div class="field"><label>Brazo derecho (cm)</label><input type="number" id="np-brazo-d" placeholder="Ej: 35" step="0.1" min="15" max="60"/></div>
-  <div class="field"><label>Brazo izquierdo (cm)</label><input type="number" id="np-brazo-i" placeholder="Ej: 34" step="0.1" min="15" max="60"/></div>
-  <div class="field"><label>Cintura alta — nivel ombligo (cm)</label><input type="number" id="np-cintura-a" placeholder="Ej: 85" step="0.1" min="40" max="160"/></div>
-  <div class="field"><label>Cintura baja — nivel cadera (cm)</label><input type="number" id="np-cintura-b" placeholder="Ej: 90" step="0.1" min="40" max="160"/></div>
-  <div class="field"><label>Cadera (cm)</label><input type="number" id="np-cadera" placeholder="Ej: 100" step="0.1" min="50" max="180"/></div>
-  <div class="field"><label>Muslo derecho (cm)</label><input type="number" id="np-muslo-d" placeholder="Ej: 58" step="0.1" min="20" max="100"/></div>
-  <div class="field"><label>Muslo izquierdo (cm)</label><input type="number" id="np-muslo-i" placeholder="Ej: 57" step="0.1" min="20" max="100"/></div>
-  <div class="field"><label>Pantorrilla derecha (cm)</label><input type="number" id="np-panto-d" placeholder="Ej: 38" step="0.1" min="15" max="70"/></div>
-  <div class="field"><label>Pantorrilla izquierda (cm)</label><input type="number" id="np-panto-i" placeholder="Ej: 37" step="0.1" min="15" max="70"/></div>
+  <div class="field"><label>Cuello (cm)</label><input type="number" id="np-cuello" placeholder="Ej: 38" step="0.1" min="20" max="60"></div>
+  <div class="field"><label>Hombros / Espalda (cm)</label><input type="number" id="np-espalda" placeholder="Ej: 115" step="0.1" min="60" max="180"></div>
+  <div class="field"><label>Brazo derecho (cm)</label><input type="number" id="np-brazo-d" placeholder="Ej: 35" step="0.1" min="15" max="60"></div>
+  <div class="field"><label>Brazo izquierdo (cm)</label><input type="number" id="np-brazo-i" placeholder="Ej: 34" step="0.1" min="15" max="60"></div>
+  <div class="field"><label>Cintura alta — nivel ombligo (cm)</label><input type="number" id="np-cintura-a" placeholder="Ej: 85" step="0.1" min="40" max="160"></div>
+  <div class="field"><label>Cintura baja — nivel cadera (cm)</label><input type="number" id="np-cintura-b" placeholder="Ej: 90" step="0.1" min="40" max="160"></div>
+  <div class="field"><label>Cadera (cm)</label><input type="number" id="np-cadera" placeholder="Ej: 100" step="0.1" min="50" max="180"></div>
+  <div class="field"><label>Muslo derecho (cm)</label><input type="number" id="np-muslo-d" placeholder="Ej: 58" step="0.1" min="20" max="100"></div>
+  <div class="field"><label>Muslo izquierdo (cm)</label><input type="number" id="np-muslo-i" placeholder="Ej: 57" step="0.1" min="20" max="100"></div>
+  <div class="field"><label>Pantorrilla derecha (cm)</label><input type="number" id="np-panto-d" placeholder="Ej: 38" step="0.1" min="15" max="70"></div>
+  <div class="field"><label>Pantorrilla izquierda (cm)</label><input type="number" id="np-panto-i" placeholder="Ej: 37" step="0.1" min="15" max="70"></div>
 </div></div>
 
 <!-- CONFIGURACIÓN CALÓRICA -->
@@ -649,22 +653,22 @@ main{padding-top:var(--nav)}
 </div>
 <div class="slider-block">
   <div class="slider-top"><span class="slider-lbl" id="defLabel">% Déficit calórico respecto al GET</span><span class="slider-val clr-r" id="defVal">-15%</span></div>
-  <div class="slider-track"><input type="range" id="np-deficit" min="-30" max="30" value="-15" step="5" oninput="updateDeficit()"/></div>
+  <div class="slider-track"><input type="range" id="np-deficit" min="-30" max="30" value="-15" step="5" oninput="updateDeficit()"></div>
   <div class="slider-hints"><span>-30% Déficit</span><span>0% Mant.</span><span>+30% Superávit</span></div>
 </div>
 <div class="slider-block">
   <div class="slider-top"><span class="slider-lbl">Proteína — g por kg de peso / día</span><span class="slider-val clr-t" id="protVal">2.0 g/kg</span></div>
-  <div class="slider-track"><input type="range" id="np-protkg" min="1.0" max="3.5" value="2.0" step="0.1" oninput="updateProt()"/></div>
+  <div class="slider-track"><input type="range" id="np-protkg" min="1.0" max="3.5" value="2.0" step="0.1" oninput="updateProt()"></div>
   <div class="slider-hints"><span>1.0 salud</span><span>2.0 fitness</span><span>3.5 élite</span></div>
 </div>
 <div class="slider-block">
   <div class="slider-top"><span class="slider-lbl">Carbohidratos — % de kcal restantes tras proteína</span><span class="slider-val clr-w" id="pctCarbVal">50%</span></div>
-  <div class="slider-track"><input type="range" id="np-pct-carb" min="10" max="80" value="50" step="5" oninput="updatePctCarb()"/></div>
+  <div class="slider-track"><input type="range" id="np-pct-carb" min="10" max="80" value="50" step="5" oninput="updatePctCarb()"></div>
   <div class="slider-hints"><span>10% Keto</span><span>50% Mixta</span><span>80% Plant</span></div>
 </div>
 <div class="slider-block">
   <div class="slider-top"><span class="slider-lbl">Grasas — % de kcal restantes tras proteína</span><span class="slider-val clr-pk" id="pctFatVal">50%</span></div>
-  <div class="slider-track"><input type="range" id="np-pct-fat" min="10" max="80" value="50" step="5" oninput="updatePctFat()"/></div>
+  <div class="slider-track"><input type="range" id="np-pct-fat" min="10" max="80" value="50" step="5" oninput="updatePctFat()"></div>
   <div class="slider-hints"><span>10% muy bajo</span><span>50% equilibrado</span><span>80% Keto</span></div>
 </div>
 <div id="formulaBox" style="display:none" class="formula-box">
@@ -686,17 +690,17 @@ main{padding-top:var(--nav)}
 <div class="card">
 <div class="card-title"><i class="ti ti-clipboard-list"></i> Cuestionario clínico</div>
 <div class="form-2col">
-  <div class="field col2"><label>Intolerancias alimentarias</label><input type="text" id="np-intol" placeholder="Ej: lactosa, gluten, fructosa..."/></div>
-  <div class="field col2"><label>Alergias alimentarias</label><input type="text" id="np-alergia" placeholder="Ej: mariscos, nueces, soya, huevo..."/></div>
-  <div class="field col2"><label>Enfermedades o condiciones diagnosticadas</label><input type="text" id="np-condiciones" placeholder="Ej: diabetes tipo 2, hipotiroidismo, hipertensión..."/></div>
-  <div class="field col2"><label>Medicamentos actuales</label><input type="text" id="np-medicamentos" placeholder="Ej: metformina, levotiroxina..."/></div>
+  <div class="field col2"><label>Intolerancias alimentarias</label><input type="text" id="np-intol" placeholder="Ej: lactosa, gluten, fructosa..."></div>
+  <div class="field col2"><label>Alergias alimentarias</label><input type="text" id="np-alergia" placeholder="Ej: mariscos, nueces, soya, huevo..."></div>
+  <div class="field col2"><label>Enfermedades o condiciones diagnosticadas</label><input type="text" id="np-condiciones" placeholder="Ej: diabetes tipo 2, hipotiroidismo, hipertensión..."></div>
+  <div class="field col2"><label>Medicamentos actuales</label><input type="text" id="np-medicamentos" placeholder="Ej: metformina, levotiroxina..."></div>
   <div class="field"><label>Horario de entrenamiento</label>
     <select id="np-horario-ent"><option value="">No entrena</option><option value="manana">Mañana (6-10am)</option><option value="mediodia">Mediodía (10am-1pm)</option><option value="tarde">Tarde (1-5pm)</option><option value="noche">Noche (5-9pm)</option></select>
   </div>
   <div class="field"><label>Horario laboral</label>
     <select id="np-horario-lab"><option value="oficina">Oficina (día)</option><option value="nocturno">Nocturno</option><option value="variable">Variable / Mixto</option><option value="casa">Desde casa</option></select>
   </div>
-  <div class="field col2"><label>Alimentos que NO consume</label><input type="text" id="np-no-come" placeholder="Ej: cerdo, picante, verduras crucíferas..."/></div>
+  <div class="field col2"><label>Alimentos que NO consume</label><input type="text" id="np-no-come" placeholder="Ej: cerdo, picante, verduras crucíferas..."></div>
   <div class="field col2"><label>Notas clínicas adicionales</label><textarea id="np-notas" rows="3" placeholder="Síntomas, metas específicas, información adicional..."></textarea></div>
 </div></div>
 
@@ -717,7 +721,7 @@ main{padding-top:var(--nav)}
     </select>
   </div>
   <div class="field"><label>Número de comidas al día</label>
-    <select id="np-comidas"><option value="2">2 comidas</option><option value="3">3 comidas</option><option value="4">4 comidas</option><option value="5" selected>5 comidas</option><option value="6">6 comidas</option><option value="7">7 comidas</option></select>
+    <select id="np-comidas"><option value="2">2 comidas</option><option value="3">3 comidas</option><option value="4">4 comidas</option><option value="5" selected="">5 comidas</option><option value="6">6 comidas</option><option value="7">7 comidas</option></select>
   </div>
 </div></div>
 
@@ -743,11 +747,11 @@ main{padding-top:var(--nav)}
       </select>
     </div>
     <div class="field" style="margin-bottom:0;flex:0 0 130px;display:none" id="supleOtroWrap">
-      <label>Nombre</label><input type="text" id="supleOtro" placeholder="Ej: Berberina"/>
+      <label>Nombre</label><input type="text" id="supleOtro" placeholder="Ej: Berberina">
     </div>
     <div class="field" style="margin-bottom:0;flex:2;min-width:150px">
       <label>Dosis y momento exacto</label>
-      <input type="text" id="supleDosis" placeholder="Ej: 5g post-entreno, diario" onkeydown="if(event.key==='Enter'){event.preventDefault();addSuple()}"/>
+      <input type="text" id="supleDosis" placeholder="Ej: 5g post-entreno, diario" onkeydown="if(event.key===&#39;Enter&#39;){event.preventDefault();addSuple()}">
     </div>
     <button class="btn-add" onclick="addSuple()" title="Agregar"><i class="ti ti-plus"></i></button>
   </div>
@@ -771,10 +775,10 @@ main{padding-top:var(--nav)}
     <select id="np-nivel"><option value="principiante">Principiante (0-6 meses)</option><option value="intermedio">Intermedio (6m-2 años)</option><option value="avanzado">Avanzado (2-5 años)</option><option value="pro">Pro / Competidor</option></select>
   </div>
   <div class="field"><label>Frecuencia semanal</label>
-    <select id="np-frec"><option value="2">2 días/sem</option><option value="3">3 días/sem</option><option value="4" selected>4 días/sem</option><option value="5">5 días/sem</option><option value="6">6 días/sem</option></select>
+    <select id="np-frec"><option value="2">2 días/sem</option><option value="3">3 días/sem</option><option value="4" selected="">4 días/sem</option><option value="5">5 días/sem</option><option value="6">6 días/sem</option></select>
   </div>
   <div class="field"><label>RIR (Repeticiones en Reserva)</label>
-    <select id="np-rir"><option value="4">RIR 4 — muy conservador</option><option value="3">RIR 3 — conservador</option><option value="2" selected>RIR 2 — moderado</option><option value="1">RIR 1 — intenso</option><option value="0">RIR 0 — fallo</option></select>
+    <select id="np-rir"><option value="4">RIR 4 — muy conservador</option><option value="3">RIR 3 — conservador</option><option value="2" selected="">RIR 2 — moderado</option><option value="1">RIR 1 — intenso</option><option value="0">RIR 0 — fallo</option></select>
   </div>
   <div class="field"><label>Énfasis muscular</label>
     <select id="np-enfasis"><option value="ninguno">Sin énfasis específico</option><option value="pecho">Pecho</option><option value="espalda">Espalda</option><option value="hombros">Hombros</option><option value="brazos">Brazos</option><option value="piernas">Piernas</option><option value="gluteos">Glúteos</option><option value="core">Core / Abdomen</option><option value="tren_superior">Tren superior</option><option value="tren_inferior">Tren inferior</option></select>
@@ -802,10 +806,10 @@ main{padding-top:var(--nav)}
   <i class="ti ti-info-circle"></i> <b>Fórmula de 4 pliegues — Durnin &amp; Womersley (1974).</b> Ingresa cada pliegue en mm. El cálculo es automático e instantáneo. Requiere edad y sexo completados arriba.
 </div>
 <div class="form-2col">
-  <div class="field"><label>Pliegue bíceps (mm)</label><input type="number" id="dw-biceps" placeholder="Ej: 8" step="0.1" min="1" max="80" oninput="calcDurnin('new')"/></div>
-  <div class="field"><label>Pliegue tríceps (mm)</label><input type="number" id="dw-triceps" placeholder="Ej: 14" step="0.1" min="1" max="80" oninput="calcDurnin('new')"/></div>
-  <div class="field"><label>Pliegue subescapular (mm)</label><input type="number" id="dw-subscap" placeholder="Ej: 16" step="0.1" min="1" max="80" oninput="calcDurnin('new')"/></div>
-  <div class="field"><label>Pliegue suprailíaco (mm)</label><input type="number" id="dw-suprail" placeholder="Ej: 18" step="0.1" min="1" max="80" oninput="calcDurnin('new')"/></div>
+  <div class="field"><label>Pliegue bíceps (mm)</label><input type="number" id="dw-biceps" placeholder="Ej: 8" step="0.1" min="1" max="80" oninput="calcDurnin(&#39;new&#39;)"></div>
+  <div class="field"><label>Pliegue tríceps (mm)</label><input type="number" id="dw-triceps" placeholder="Ej: 14" step="0.1" min="1" max="80" oninput="calcDurnin(&#39;new&#39;)"></div>
+  <div class="field"><label>Pliegue subescapular (mm)</label><input type="number" id="dw-subscap" placeholder="Ej: 16" step="0.1" min="1" max="80" oninput="calcDurnin(&#39;new&#39;)"></div>
+  <div class="field"><label>Pliegue suprailíaco (mm)</label><input type="number" id="dw-suprail" placeholder="Ej: 18" step="0.1" min="1" max="80" oninput="calcDurnin(&#39;new&#39;)"></div>
 </div>
 <div id="dw-result-new" style="display:none">
   <div class="durnin-results">
@@ -824,9 +828,9 @@ main{padding-top:var(--nav)}
 <div class="card">
 <div class="card-title"><i class="ti ti-microscope"></i> Análisis clínicos (opcional)</div>
 <p style="font-size:13px;color:var(--tx2);margin-bottom:1rem">Sube imágenes o PDF de laboratorio. La IA los interpretará y ajustará el plan nutricional y de entrenamiento según los hallazgos.</p>
-<div class="field"><label>Notas sobre el análisis</label><input type="text" id="np-analysis-notes" placeholder="Ej: ayuno 12h, control post-tratamiento..."/></div>
+<div class="field"><label>Notas sobre el análisis</label><input type="text" id="np-analysis-notes" placeholder="Ej: ayuno 12h, control post-tratamiento..."></div>
 <div class="upload-zone" id="np-dropzone">
-  <input type="file" accept="image/*,.pdf" multiple onchange="handleFiles(event,'np')" id="np-fileInput"/>
+  <input type="file" accept="image/*,.pdf" multiple="" onchange="handleFiles(event,&#39;np&#39;)" id="np-fileInput">
   <i class="ti ti-cloud-upload"></i>
   <div class="upload-txt">Toca para seleccionar archivos</div>
   <div class="upload-sub">Imágenes de laboratorio, PDF · Máx 3 archivos</div>
@@ -851,7 +855,7 @@ main{padding-top:var(--nav)}
 <div id="installBanner" class="install-banner" style="display:none">
   <div class="ib-text"><i class="ti ti-download"></i><span>Instala Salud Vital en tu dispositivo</span></div>
   <button onclick="installApp()" class="ib-install">Instalar</button>
-  <button onclick="document.getElementById('installBanner').style.display='none'" class="ib-close"><i class="ti ti-x"></i></button>
+  <button onclick="document.getElementById(&#39;installBanner&#39;).style.display=&#39;none&#39;" class="ib-close"><i class="ti ti-x"></i></button>
 </div>
 
 <script>
@@ -1405,7 +1409,7 @@ META: ${m.meta} kcal | Prot ${m.prot}g | Carbs ${m.carb}g | Grasas ${m.fat}g
 DIETA: ${nuevaDieta} | ${nuevasComidas} comidas/día | Objetivo: ${nuevoObj}
 CLÍNICO: Condiciones: ${condiciones||'ninguna'} | Excluir: ${p.noCome||'nada'}
 ENTRENO: ${nuevoRutina}, ${nivel||'intermedio'}, ${nuevoFrec}d/sem, RIR ${rir||2}, énfasis ${enfasis||'ninguno'}
-SUPLEMENTOS OBLIGATORIOS DEL COACH — INCLUIR TODOS SIN EXCEPCIÓN: ${(suplementos||[]).join(', ')||'ninguno'}. Solo estos suplementos, nada más.
+SUPLEMENTOS OBLIGATORIOS DEL COACH — INCLUIR TODOS SIN EXCEPCIÓN: ${(suplementos||[]).join(', ')||'ninguno'}. Posología exacta guardada: ${nuevaPos||p.posologia||'usar dosis estándar'}. Solo estos suplementos, nada más.
 ${nuevasNotas?'Cambios/Notas: '+nuevasNotas:''}
 ${sexo==='M' ? 'RESTRICCIÓN FEMENINA: PROHIBIDO pectoral y espalda agarre abierto.' : ''}
 
@@ -2593,7 +2597,7 @@ META: ${m.meta} kcal | Prot ${m.prot}g | Carbs ${m.carb}g | Grasas ${m.fat}g
 DIETA: ${dieta} | ${comidas} comidas/día | Objetivo: ${objetivo}
 CLÍNICO: Intol: ${intol||'ninguna'} | Alergias: ${alergia||'ninguna'} | Condiciones: ${condiciones||'ninguna'} | Excluir: ${noCome||'nada'}
 ENTRENO: ${rutinaT}, ${nivel}, ${frec}d/sem, RIR ${rir}, énfasis ${enfasis}
-SUPLEMENTOS OBLIGATORIOS DEL COACH — DEBES incluir TODOS en el JSON sin excepción: ${suples.join(', ')||'ninguno'}. NO agregues suplementos que no estén en esta lista.
+SUPLEMENTOS OBLIGATORIOS DEL COACH — DEBES incluir TODOS en el JSON sin excepción: ${suples.join(', ')||'ninguno'}. Posología exacta: ${posologia||'usar dosis estándar'}. NO agregues suplementos que no estén en esta lista.
 ${notas?'Notas: '+notas:''}
 ${cuello?`PERÍMETROS (cm): Cuello ${cuello} | Hombros ${espalda||'-'} | Brazo D ${brazoD||'-'} / I ${brazoI||'-'} | Cintura alta ${cinturaA||'-'} / baja ${cinturaB||'-'} | Cadera ${cadera||'-'} | Muslo D ${musloD||'-'} / I ${musloI||'-'} | Pantorrilla D ${pantoD||'-'} / I ${pantoI||'-'}`:''}
 
@@ -2823,5 +2827,6 @@ if ('serviceWorker' in navigator) {
   });
 }
 </script>
-</body>
-</html>
+
+
+</body></html>
