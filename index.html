@@ -2463,7 +2463,7 @@ Responde SOLO en JSON válido sin backticks:
     renderAnalysisResult(result,resDiv);
     uploadedFiles.pat=[];renderFileList('pat');
   }catch(e){
-    resDiv.innerHTML='<div class="alert alert-err"><i class="ti ti-x"></i> Error al analizar. Verifica la conexión e intenta de nuevo.</div>';
+  console.error('ERROR:', e);resDiv.innerHTML='<div class="alert alert-err"><i class="ti ti-x"></i> Error real: '+e.message+'</div>';
   }
   if(btn)btn.disabled=false;
 }
