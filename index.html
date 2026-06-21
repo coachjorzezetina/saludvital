@@ -2417,11 +2417,13 @@ async function analizarClinicos(uid) {
   if(!uploadedFiles.pat.length){resDiv.innerHTML='<div class="alert alert-warn"><i class="ti ti-alert-circle"></i> Sube al menos un archivo antes de analizar.</div>';return;}
   resDiv.innerHTML='<div class="loading-row show" style="margin:0"><div class="spinner-sm"></div><span>Analizando y adaptando plan con IA <span class="dot-anim"><span>.</span><span>.</span><span>.</span></span></span></div>';
   if(btn)btn.disabled=true;
+  const {db, doc, updateDoc} = window.SV;
   const p=CURRENT_PAT;
   const m=calcMacros(p);
   const content=[];
   for(const f of uploadedFiles.pat){
     if(f.type.startsWith('image/')) content.push({type:'image',source:{type:'base64',media_type:f.type,data:f.data.split(',')[1]}});
+    else if(f.type==='application/pdf') content.push({type:'document',source:{type:'base64',media_type:'application/pdf',data:f.data.split(',')[1]}});
   }
   const prompt=`Eres médico internista, nutriólogo clínico y entrenador físico experto de Salud Vital, Xalapa Veracruz México.
 
@@ -2444,7 +2446,7 @@ Responde SOLO en JSON válido sin backticks:
 {"titulo":"nombre del estudio","nivel_riesgo":"bajo|medio|alto","resumen_general":"evaluación 3-4 oraciones","hallazgos":[{"parametro":"","valor":"","referencia":"","estado":"normal|alto|bajo|critico","interpretacion":""}],"condiciones_detectadas":[""],"tendencias_riesgo":[""],"ajustes_plan_nutricional":["ajuste específico"],"ajustes_entrenamiento":["ajuste específico"],"recomendaciones_medicas":[""],"seguimiento":""}`;
   content.push({type:'text',text:prompt});
   try{
-   const res=await fetch("/api/claude-proxy",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:2000,messages:[{role:"user",content}]})});
+   const res=await fetch("/api/claude-proxy",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:4096,messages:[{role:"user",content}]})});
     const data=await res.json();
     if(!data || !data.content || !Array.isArray(data.content)) {
       throw new Error('Respuesta inválida: '+(data?.error?.message||JSON.stringify(data).slice(0,100)));
@@ -2456,7 +2458,6 @@ Responde SOLO en JSON válido sin backticks:
     else { const f=rawText2.indexOf('{'),l=rawText2.lastIndexOf('}'); if(f>=0&&l>f) jsonStr2=rawText2.slice(f,l+1); }
     const result=JSON.parse(jsonStr2);
     // Guardar en Firestore
-
     const analisis=[...(p.analisis||[]),{titulo:result.titulo,fecha:new Date().toLocaleDateString('es-MX'),nivel_riesgo:result.nivel_riesgo}];
     await updateDoc(doc(db,'users',uid),{analisis});
     CURRENT_PAT.analisis=analisis;
@@ -2466,9 +2467,7 @@ Responde SOLO en JSON válido sin backticks:
  console.error('ERROR:', e);resDiv.innerHTML='<div class="alert alert-err"><i class="ti ti-x"></i> Error real: '+e.message+'</div>';
   }
   if(btn)btn.disabled=false;
-}
-
-function renderAnalysisResult(r,el){
+}function renderAnalysisResult(r,el){
   const rC={bajo:'risk-low',medio:'risk-med',alto:'risk-high'};
   const dC={normal:'dot-ok',alto:'dot-warn',bajo:'dot-warn',critico:'dot-bad'};
   const rows=(arr,dotCls)=>(arr||[]).filter(t=>t).map(t=>`<div class="ar-item"><div class="ardot ${dotCls}"></div><div>${t}</div></div>`).join('');
