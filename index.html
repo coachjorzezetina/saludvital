@@ -1419,7 +1419,7 @@ Responde SOLO en JSON válido SIN texto extra, SIN backticks. Sé CONCISO:
 {"resumen":"2 oraciones","imc_nota":"1 oración","alerta_clinica":"","comidas":[{"nombre":"Desayuno","hora":"7:30 AM","icono":"coffee","kcal":400,"alimentos":[{"item":"alimento","cantidad":"cantidad"}]}],"suplementacion":[${supleJsonStr2}],"hidratacion":"recomendación","recomendaciones":["tip1","tip2","tip3"],"lista_compras":{"proteinas":["item"],"verduras":["item"],"frutas":["item"],"lacteos_sustitutos":[],"grasas":["item"],"carbohidratos":["item"],"otros":[]},"recetas":[{"nombre":"receta","tiempo":"15 min","ingredientes":["ing"],"instrucciones":"pasos breves"}],"entrenamiento":[{"dia":"Lunes","tipo":"músculo","ejercicios":[{"nombre":"ejercicio","series":"4","reps":"10","rir":"RIR ${p.rir||2}","notas":"","youtube_url":"https://www.youtube.com/results?search_query=ejercicio+tecnica"}]}]}`;
 
   try {
-    const res = await fetch("/.netlify/functions/claude-proxy",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-haiku-4-5-20251001",max_tokens:8000,messages:[{role:"user",content:prompt}]})});
+    const res = await fetch("/api/claude-proxy",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-haiku-4-5-20251001",max_tokens:8000,messages:[{role:"user",content:prompt}]})});
     const data = await res.json();
     if(!data?.content?.length) throw new Error(data?.error?.message || 'Sin respuesta');
     const rawText = data.content.map(b=>b.text||'').join('').trim();
@@ -2634,7 +2634,7 @@ Responde SOLO en JSON válido SIN texto extra, SIN backticks. Sé CONCISO:
     }
 
     // 2. Llamar a la IA
-    const res=await fetch("/.netlify/functions/claude-proxy",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-3-5-sonnet-20241022",max_tokens:2500,messages:[{role:"user",content:prompt}]})}); 
+    const res=await fetch("/api/claude-proxy",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-3-5-sonnet-20241022",max_tokens:2500,messages:[{role:"user",content:prompt}]})}); 
     const data=await res.json();
     console.log('API Response:', JSON.stringify(data).slice(0,500));
     // Verify response structure
