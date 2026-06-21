@@ -2444,7 +2444,7 @@ Responde SOLO en JSON válido sin backticks:
 {"titulo":"nombre del estudio","nivel_riesgo":"bajo|medio|alto","resumen_general":"evaluación 3-4 oraciones","hallazgos":[{"parametro":"","valor":"","referencia":"","estado":"normal|alto|bajo|critico","interpretacion":""}],"condiciones_detectadas":[""],"tendencias_riesgo":[""],"ajustes_plan_nutricional":["ajuste específico"],"ajustes_entrenamiento":["ajuste específico"],"recomendaciones_medicas":[""],"seguimiento":""}`;
   content.push({type:'text',text:prompt});
   try{
-    const res=await fetch("/api/claude-proxy",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-3-5-sonnet-20241022",max_tokens:2000,messages:[{role:"user",content}]})}); 
+    const res=await fetch"/api/claude(-proxy",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:2000,messages:[{role:"user",content}]})}); 
     const data=await res.json();
     if(!data || !data.content || !Array.isArray(data.content)) {
       throw new Error('Respuesta inválida: '+(data?.error?.message||JSON.stringify(data).slice(0,100)));
@@ -2634,7 +2634,7 @@ Responde SOLO en JSON válido SIN texto extra, SIN backticks. Sé CONCISO:
     }
 
     // 2. Llamar a la IA
-    const res=await fetch("/api/claude-proxy",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-3-5-sonnet-20241022",max_tokens:2500,messages:[{role:"user",content:prompt}]})}); 
+    const res=await fetch("/api/claude-proxy",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:2500,messages:[{role:"user",content:prompt}]})}); 
     const data=await res.json();
     console.log('API Response:', JSON.stringify(data).slice(0,500));
     // Verify response structure
