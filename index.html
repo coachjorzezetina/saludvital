@@ -875,6 +875,13 @@ let uploadedFiles  = { np:[], pat:[] };
 let weightChartInst = null;
 let _durninTemp    = null;
 
+/* ── REPARAR JSON DE LA IA (comas faltantes) ────────────── */
+function repairJSON(str) {
+  // Inserta coma cuando dos elementos JSON quedan pegados sin separador
+  // (ej: "texto1" "texto2"  ó  }{  ó  ][  ó  400 "siguiente")
+  return str.replace(/(["\]\}\d])(\s+)(["\{\[])/g, (m,p1,ws,p2) => p1+','+ws+p2);
+}
+
 /* ── CONSTANTES DURNIN & WOMERSLEY (1974) ───────────────── */
 const DW = {
   H: [[17,19,1.1620,0.0630],[20,29,1.1631,0.0632],[30,39,1.1422,0.0544],[40,49,1.1620,0.0700],[50,99,1.1715,0.0779]],
@@ -1425,7 +1432,7 @@ Responde SOLO en JSON válido SIN texto extra, SIN backticks. Sé CONCISO:
     const rawText = data.content.map(b=>b.text||'').join('').trim();
     let jsonStr = rawText;
     if(rawText.includes('`')){const f=rawText.indexOf('{'),l=rawText.lastIndexOf('}');if(f>=0&&l>f)jsonStr=rawText.slice(f,l+1);}
-    jsonStr = jsonStr.replace(/}\s*{/g,'},{').replace(/]\s*\[/g,'],[');
+    jsonStr = repairJSON(jsonStr);
     const plan = JSON.parse(jsonStr);
 
     document.getElementById('updatePlanModal')?.remove();
@@ -2461,7 +2468,7 @@ Responde SOLO en JSON válido sin backticks:
     const jm2 = rawText2.match(/```json\s*([\s\S]*?)\s*```/);
     if(jm2) jsonStr2 = jm2[1];
     else { const f=rawText2.indexOf('{'),l=rawText2.lastIndexOf('}'); if(f>=0&&l>f) jsonStr2=rawText2.slice(f,l+1); }
-    jsonStr2 = jsonStr2.replace(/}\s*{/g, '},{').replace(/]\s*\[/g, '],[');
+    jsonStr2 = repairJSON(jsonStr2);
     const result=JSON.parse(jsonStr2);
     // Guardar en Firestore
     const analisis=[...(p.analisis||[]),{titulo:result.titulo,fecha:new Date().toLocaleDateString('es-MX'),nivel_riesgo:result.nivel_riesgo}];
@@ -2601,7 +2608,7 @@ Aplica ÚNICAMENTE esos cambios, mantén todo lo demás igual. Responde SOLO con
       const jm = rawText.match(/```json\s*([\s\S]*?)\s*```/);
       if(jm) jsonStr = jm[1];
       else { const f=rawText.indexOf('{'), l=rawText.lastIndexOf('}'); if(f>=0&&l>f) jsonStr=rawText.slice(f,l+1); }
-      jsonStr = jsonStr.replace(/}\s*{/g,'},{').replace(/]\s*\[/g,'],[');
+      jsonStr = repairJSON(jsonStr);
       workingPlan = JSON.parse(jsonStr);
       render();
     } catch(e) {
@@ -2775,7 +2782,7 @@ Responde SOLO en JSON válido SIN texto extra, SIN backticks. Sé CONCISO:
       if(m>=0 && n>m) jsonStr = rawText.slice(m, n+1);
     }
     let plan;
-    try { jsonStr = jsonStr.replace(/}\s*{/g,'},{').replace(/]\s*\[/g,'],['); plan = JSON.parse(jsonStr); }
+    try { jsonStr = repairJSON(jsonStr); plan = JSON.parse(jsonStr); }
     catch(parseErr) {
       console.error('JSON parse error:', parseErr.message);
       console.error('Tried to parse:', jsonStr.slice(0,300));
