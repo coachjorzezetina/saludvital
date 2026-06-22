@@ -878,8 +878,9 @@ let _durninTemp    = null;
 /* ── REPARAR JSON DE LA IA (comas faltantes) ────────────── */
 function repairJSON(str) {
   // Inserta coma cuando dos elementos JSON quedan pegados sin separador
-  // (ej: "texto1" "texto2"  ó  }{  ó  ][  ó  400 "siguiente")
-  return str.replace(/(["\]\}\d])(\s+)(["\{\[])/g, (m,p1,ws,p2) => p1+','+ws+p2);
+  // (ej: "texto1""texto2"  ó  "texto1" "texto2"  ó  }{  ó  ][  ó  400"siguiente")
+  // Funciona con CERO o más espacios/saltos de línea entre los elementos.
+  return str.replace(/(["\]\}\d])(\s*)(["\{\[])/g, (m,p1,ws,p2) => p1+','+ws+p2);
 }
 
 /* ── CONSTANTES DURNIN & WOMERSLEY (1974) ───────────────── */
@@ -1842,10 +1843,12 @@ async function renderPatientView(p, plan) {
 
   // Tab Análisis (vista paciente solo ve resumen; master/coach pueden subir)
   const canUpload = CURRENT_ROLE==='master'||CURRENT_ROLE==='coach';
-  const analisisHist = (p.analisis||[]).slice().reverse().map(a=>`
-    <div class="file-preview" style="margin-bottom:6px">
+  const tendBadge = {mejoro:'<span style="color:var(--g)"><i class="ti ti-trending-up"></i> Mejoró</span>',empeoro:'<span style="color:var(--re)"><i class="ti ti-trending-down"></i> Empeoró</span>',estable:'<span style="color:var(--tx2)"><i class="ti ti-minus"></i> Estable</span>',mixto:'<span style="color:var(--w)"><i class="ti ti-arrows-diff"></i> Mixto</span>'};
+  const analisisHist = (p.analisis||[]).map((a,idx)=>({a,idx})).reverse().map(({a,idx})=>`
+    <div class="file-preview" style="margin-bottom:6px;cursor:pointer" onclick="verAnalisisHist(${idx})">
       <i class="ti ti-file-analytics fp-icon"></i>
-      <div><div class="fp-name">${a.titulo||'Análisis'}</div><div class="fp-size">${a.fecha||'—'} · Riesgo ${a.nivel_riesgo||'—'}</div></div>
+      <div><div class="fp-name">${a.titulo||'Análisis'}</div><div class="fp-size">${a.fecha||'—'} · Riesgo ${a.nivel_riesgo||'—'}${a.comparacion?' · '+(tendBadge[a.comparacion.evaluacion_general]||''):''}</div></div>
+      <i class="ti ti-chevron-right" style="margin-left:auto;color:var(--tx3)"></i>
     </div>`).join('') || '<div style="font-size:13px;color:var(--tx3);padding:.5rem 0">Sin análisis registrados.</div>';
 
   // Composición corporal hist
@@ -2470,11 +2473,19 @@ Responde SOLO en JSON válido sin backticks:
     else { const f=rawText2.indexOf('{'),l=rawText2.lastIndexOf('}'); if(f>=0&&l>f) jsonStr2=rawText2.slice(f,l+1); }
     jsonStr2 = repairJSON(jsonStr2);
     const result=JSON.parse(jsonStr2);
-    // Guardar en Firestore
-    const analisis=[...(p.analisis||[]),{titulo:result.titulo,fecha:new Date().toLocaleDateString('es-MX'),nivel_riesgo:result.nivel_riesgo}];
+    // Comparar con el análisis anterior más reciente (si existe y tiene detalle completo)
+    const prevConDetalle = (p.analisis||[]).slice().reverse().find(a=>a.full);
+    let comparacion = null;
+    if(prevConDetalle){
+      resDiv.insertAdjacentHTML('beforeend','<div class="loading-row show" id="compLoadingRow"><div class="spinner-sm"></div><span>Comparando con el análisis anterior...</span></div>');
+      comparacion = await compararAnalisis(prevConDetalle.full, result);
+    }
+    // Guardar en Firestore (detalle completo + comparación)
+    const analisis=[...(p.analisis||[]),{titulo:result.titulo,fecha:new Date().toLocaleDateString('es-MX'),nivel_riesgo:result.nivel_riesgo,full:result,comparacion}];
     await updateDoc(doc(db,'users',uid),{analisis});
     CURRENT_PAT.analisis=analisis;
     renderAnalysisResult(result,resDiv);
+    if(comparacion) renderComparacion(comparacion,resDiv);
     uploadedFiles.pat=[];renderFileList('pat');
   }catch(e){
  console.error('ERROR:', e);resDiv.innerHTML='<div class="alert alert-err"><i class="ti ti-x"></i> Error real: '+e.message+'</div>';
@@ -2499,6 +2510,76 @@ function renderAnalysisResult(r,el){
     <div class="alert alert-warn" style="margin-top:.5rem;font-size:12px"><i class="ti ti-clock"></i> ${r.seguimiento||''}</div>
     <div class="alert alert-warn" style="font-size:11px;opacity:.8"><i class="ti ti-info-circle"></i> Análisis orientativo. No sustituye criterio médico profesional.</div>
   </div>`;
+}
+
+/* ── COMPARAR ANÁLISIS (anterior vs actual) ─────────────── */
+async function compararAnalisis(anterior, actual) {
+  try {
+    const prompt=`Eres médico internista experto en interpretar tendencias de laboratorio.
+
+Compara estos dos análisis de laboratorio DEL MISMO PACIENTE — el ANTERIOR contra el ACTUAL (más reciente) — y determina si la salud mejoró, empeoró o se mantuvo estable.
+
+ANÁLISIS ANTERIOR (${anterior.titulo||'sin título'}, fecha relativa más antigua):
+Hallazgos: ${JSON.stringify(anterior.hallazgos||[])}
+Condiciones detectadas entonces: ${JSON.stringify(anterior.condiciones_detectadas||[])}
+
+ANÁLISIS ACTUAL (${actual.titulo||'sin título'}, el más reciente):
+Hallazgos: ${JSON.stringify(actual.hallazgos||[])}
+Condiciones detectadas ahora: ${JSON.stringify(actual.condiciones_detectadas||[])}
+
+Compara cada parámetro que aparezca en AMBOS estudios (por nombre, aunque esté escrito ligeramente distinto). Si un parámetro solo aparece en el actual, es "nuevo". Si solo aparece en el anterior y ya no en el actual, es "resuelto".
+
+Responde SOLO en JSON válido sin backticks:
+{"evaluacion_general":"mejoro|empeoro|estable|mixto","resumen":"2-3 oraciones explicando la tendencia general de salud del paciente","items":[{"parametro":"","anterior":"valor anterior","actual":"valor actual","tendencia":"mejora|empeora|estable|nuevo|resuelto","nota":"explicación breve"}]}`;
+    const res = await fetch("/api/claude-proxy",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:3000,messages:[{role:"user",content:prompt}]})});
+    const data = await res.json();
+    if(!data?.content?.length) return null;
+    let rawText = data.content.map(b=>b.text||'').join('').trim();
+    let jsonStr = rawText;
+    const jm = rawText.match(/```json\s*([\s\S]*?)\s*```/);
+    if(jm) jsonStr = jm[1];
+    else { const f=rawText.indexOf('{'), l=rawText.lastIndexOf('}'); if(f>=0&&l>f) jsonStr=rawText.slice(f,l+1); }
+    jsonStr = repairJSON(jsonStr);
+    return JSON.parse(jsonStr);
+  } catch(e) {
+    console.error('Error al comparar análisis:', e);
+    return null;
+  } finally {
+    document.getElementById('compLoadingRow')?.remove();
+  }
+}
+
+function renderComparacion(c, el) {
+  if(!c) return;
+  const evalColors = {mejoro:'risk-low', empeoro:'risk-high', estable:'risk-med', mixto:'risk-med'};
+  const evalLabels = {mejoro:'Mejoró', empeoro:'Empeoró', estable:'Estable', mixto:'Mixto'};
+  const tendIcon = {mejora:'<i class="ti ti-trending-up" style="color:var(--g)"></i>', empeora:'<i class="ti ti-trending-down" style="color:var(--re)"></i>', estable:'<i class="ti ti-minus" style="color:var(--tx3)"></i>', nuevo:'<i class="ti ti-alert-circle" style="color:var(--w)"></i>', resuelto:'<i class="ti ti-circle-check" style="color:var(--g)"></i>'};
+  const tendLabel = {mejora:'Mejoró', empeora:'Empeoró', estable:'Sin cambio', nuevo:'Nuevo hallazgo', resuelto:'Resuelto'};
+  const html = `<div class="ar-result" style="border-color:var(--t2)">
+    <div class="ar-head"><i class="ti ti-arrows-diff" style="color:var(--t);font-size:18px"></i>
+      <div class="ar-title">Comparación con análisis anterior</div>
+      <span class="ar-risk ${evalColors[c.evaluacion_general]||'risk-med'}">${evalLabels[c.evaluacion_general]||c.evaluacion_general||''}</span></div>
+    <div class="alert alert-info" style="margin-bottom:1rem;font-size:13px">${c.resumen||''}</div>
+    ${(c.items||[]).length ? `<div class="ar-sec"><div class="ar-sec-title"><i class="ti ti-list-check"></i> Cambio por parámetro</div>
+      ${c.items.map(it=>`<div class="ar-item"><div style="margin-top:1px;flex-shrink:0">${tendIcon[it.tendencia]||''}</div><div><b style="color:var(--tx)">${it.parametro}</b> <span style="color:var(--tx2);font-size:12px">${it.anterior||'—'} → ${it.actual||'—'} · ${tendLabel[it.tendencia]||it.tendencia||''}</span>${it.nota?`<div style="font-size:12px;color:var(--tx2);margin-top:2px">${it.nota}</div>`:''}</div></div>`).join('')}
+    </div>` : ''}
+  </div>`;
+  el.insertAdjacentHTML('beforeend', html);
+}
+
+/* ── VER ANÁLISIS DEL HISTORIAL ──────────────────────────── */
+function verAnalisisHist(idx) {
+  const a = CURRENT_PAT?.analisis?.[idx];
+  const el = document.getElementById('analysisResult');
+  if(!a || !el) return;
+  el.innerHTML='';
+  if(a.full) {
+    renderAnalysisResult(a.full, el);
+    if(a.comparacion) renderComparacion(a.comparacion, el);
+  } else {
+    el.innerHTML = '<div class="alert alert-warn"><i class="ti ti-info-circle"></i> Este análisis se guardó antes de esta actualización y solo conserva el resumen (título, fecha, riesgo). No se puede mostrar el detalle completo ni compararlo.</div>';
+  }
+  el.scrollIntoView({behavior:'smooth', block:'start'});
 }
 
 /* ════════════════════════════════════════════════════════════
