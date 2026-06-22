@@ -877,10 +877,59 @@ let _durninTemp    = null;
 
 /* ── REPARAR JSON DE LA IA (comas faltantes) ────────────── */
 function repairJSON(str) {
-  // Inserta coma cuando dos elementos JSON quedan pegados sin separador
-  // (ej: "texto1""texto2"  ó  "texto1" "texto2"  ó  }{  ó  ][  ó  400"siguiente")
-  // Funciona con CERO o más espacios/saltos de línea entre los elementos.
-  return str.replace(/(["\]\}\d])(\s*)(["\{\[])/g, (m,p1,ws,p2) => p1+','+ws+p2);
+  // Repara JSON casi-válido de la IA: comillas internas sin escapar (medidas en
+  // pulgadas, términos citados, etc.) y elementos pegados sin la coma que los separa.
+  let out = '';
+  let inString = false;
+  let justClosedValue = false; // true justo después de cerrar un string, '}' o ']'
+  for (let i = 0; i < str.length; i++) {
+    const ch = str[i];
+    if (inString) {
+      if (ch === '\\') {
+        out += ch;
+        if (i+1 < str.length) { out += str[i+1]; i++; }
+        continue;
+      }
+      if (ch === '"') {
+        let j = i+1;
+        while (j < str.length && /\s/.test(str[j])) j++;
+        const next = str[j];
+        if (next === '"') {
+          // Ambiguo: ¿esta comilla cierra y la siguiente abre OTRO string,
+          // o esta es contenido (ej. pulgadas) y la SIGUIENTE es el cierre real?
+          let k = j+1;
+          while (k < str.length && /\s/.test(str[k])) k++;
+          const afterNext = str[k];
+          const segundaParececierreReal = (afterNext===undefined || afterNext===',' || afterNext===':' || afterNext==='}' || afterNext===']');
+          if (segundaParececierreReal) { out += '\\"'; } // contenido; la siguiente cerrará de verdad
+          else { inString=false; out+=ch; justClosedValue=true; } // cierra aquí; falta coma antes de la siguiente
+          continue;
+        }
+        const legitClose = (next===undefined || next===',' || next===':' || next==='}' || next===']');
+        if (legitClose) { inString=false; out+=ch; justClosedValue=true; }
+        else { out += '\\"'; }
+        continue;
+      }
+      out += ch;
+      continue;
+    }
+    // NO estamos dentro de un string
+    if (/\s/.test(ch)) { out += ch; continue; }
+    if (ch === '"') {
+      if (justClosedValue) out += ',';
+      out += ch; justClosedValue=false; inString=true;
+      continue;
+    }
+    if (ch === '{' || ch === '[') {
+      if (justClosedValue) out += ',';
+      out += ch; justClosedValue=false;
+      continue;
+    }
+    if (ch === '}' || ch === ']') { out += ch; justClosedValue=true; continue; }
+    if (ch === ',' || ch === ':') { out += ch; justClosedValue=false; continue; }
+    out += ch;
+  }
+  return out;
 }
 
 /* ── CONSTANTES DURNIN & WOMERSLEY (1974) ───────────────── */
@@ -2456,6 +2505,8 @@ DATOS DEL PACIENTE:
 - Notas: ${notes||'ninguna'}
 
 INSTRUCCIÓN CRÍTICA: Si detectas diabetes, resistencia a insulina, dislipidemia, hipotiroidismo, anemia u otras condiciones, ADAPTA los macros y la dieta específicamente en ajustes_plan_nutricional y ajusta la rutina en ajustes_entrenamiento.
+
+FORMATO JSON — OBLIGATORIO: NUNCA uses el símbolo de comillas dobles (") dentro de ningún texto/valor (por ejemplo, para pulgadas escribe "pulgadas" en vez de "; para citar un término usa comillas simples '). El símbolo " solo puede usarse para delimitar los strings del JSON, nunca dentro de su contenido.
 
 Responde SOLO en JSON válido sin backticks:
 {"titulo":"nombre del estudio","nivel_riesgo":"bajo|medio|alto","resumen_general":"evaluación 3-4 oraciones","hallazgos":[{"parametro":"","valor":"","referencia":"","estado":"normal|alto|bajo|critico","interpretacion":""}],"condiciones_detectadas":[""],"tendencias_riesgo":[""],"ajustes_plan_nutricional":["ajuste específico"],"ajustes_entrenamiento":["ajuste específico"],"recomendaciones_medicas":[""],"seguimiento":""}`;
