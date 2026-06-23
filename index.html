@@ -434,18 +434,21 @@ main{padding-top:var(--nav)}
    PRINT
 ══════════════════════════════════════════════ */
 @media print{
+  /* Solo se imprime el plan del paciente; el resto de pantallas (login, dashboard,
+     nuevo paciente, entrenadores) NUNCA deben imprimirse */
+  #s-splash,#s-suspendido,#s-login,#s-dashboard,#s-entrenadores,#s-nuevo{display:none!important}
+  #s-paciente{display:block!important;padding:0}
   /* Ocultar navegación y controles */
   .nav,.patient-tabs,.back-btn,.btn-primary,.btn-sm,.btn-icon,
   .install-banner,.upload-zone,.no-print,
-  /* Ocultar tabs de evaluación — solo mostrar plan */
-  #tp-macros,#tp-peso,#tp-comp,#tp-fotos,#tp-analisis,
+  /* Ocultar lo exclusivo del entrenador (macros, peso, composición, fotos, notas) */
+  #tp-macros,#tp-peso,#tp-comp,#tp-fotos,
   .coach-note-card,[onclick*="saveCoachNote"]{display:none!important}
   body{background:#fff;color:#111;font-family:'Exo 2',sans-serif}
-  .screen{display:block!important;padding:0}
   .meal-card,.card,.plan-hero{border:1px solid #ccc;break-inside:avoid;page-break-inside:avoid}
   .mc-val,.fr-val,.ic-val{color:#111!important}
-  /* Mostrar solo tabs del plan */
-  #tp-plan,#tp-entreno,#tp-suple,#tp-recetas,#tp-compras{display:block!important}
+  /* Mostrar dieta, entreno, suplementos, recetas, compras Y análisis de laboratorio */
+  #tp-plan,#tp-entreno,#tp-suple,#tp-recetas,#tp-compras,#tp-analisis{display:block!important}
   .ptpanel{page-break-inside:avoid}
   /* Marca del coach imprime bien */
   .coach-brand-header,.coach-brand-footer{border:1px solid #ddd;-webkit-print-color-adjust:exact;print-color-adjust:exact}
@@ -1936,7 +1939,7 @@ async function renderPatientView(p, plan) {
     </div>` : '';
 
   // WhatsApp
-  const waHTML = (p.tel && canUpload) ? `<a href="https://wa.me/${p.tel.replace(/\D/g,'')}" target="_blank" rel="noopener" style="display:flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:var(--rad);border:1px solid #25d366;color:#25d366;text-decoration:none;font-size:16px"><i class="ti ti-brand-whatsapp"></i></a>` : '';
+  const waHTML = (p.tel && canUpload) ? `<a href="https://wa.me/${p.tel.replace(/\D/g,'')}" target="_blank" rel="noopener" class="no-print" style="display:flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:var(--rad);border:1px solid #25d366;color:#25d366;text-decoration:none;font-size:16px"><i class="ti ti-brand-whatsapp"></i></a>` : '';
 
   // Load coach brand before rendering
   const marca = await getCoachMarca(p.coachId);
