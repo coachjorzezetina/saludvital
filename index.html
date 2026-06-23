@@ -2539,7 +2539,18 @@ Responde SOLO en JSON válido sin backticks:
     if(comparacion) renderComparacion(comparacion,resDiv);
     uploadedFiles.pat=[];renderFileList('pat');
   }catch(e){
- console.error('ERROR:', e);resDiv.innerHTML='<div class="alert alert-err"><i class="ti ti-x"></i> Error real: '+e.message+'</div>';
+    console.error('ERROR:', e);
+    console.error('JSON intentado:', jsonStr2);
+    let snippet = '';
+    const posMatch = e.message.match(/position (\d+)/);
+    if(posMatch && typeof jsonStr2 === 'string'){
+      const pos = parseInt(posMatch[1]);
+      const start = Math.max(0, pos-100);
+      const end = Math.min(jsonStr2.length, pos+100);
+      snippet = jsonStr2.slice(start,end);
+    }
+    resDiv.innerHTML='<div class="alert alert-err"><i class="ti ti-x"></i> Error real: '+e.message+'</div>'+
+      (snippet ? '<div class="alert alert-warn" style="font-family:monospace;font-size:11px;white-space:pre-wrap;word-break:break-all;user-select:all"><b>Texto exacto donde falla (selecciónalo y cópialo):</b><br>'+snippet.replace(/</g,'&lt;').replace(/>/g,'&gt;')+'</div>' : '');
   }
   if(btn)btn.disabled=false;
 }
