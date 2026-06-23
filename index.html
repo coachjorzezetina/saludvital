@@ -1943,6 +1943,13 @@ async function renderPatientView(p, plan) {
 
   // Load coach brand before rendering
   const marca = await getCoachMarca(p.coachId);
+  const debugMarca = canUpload ? `<div class="no-print" style="background:#3a1a1a;border:2px solid var(--re);border-radius:8px;padding:.75rem;margin-bottom:1rem;font-size:12px;font-family:monospace;color:#ffb;white-space:pre-wrap">DEBUG MARCA (bórrame después)
+p.coachId = ${p.coachId || '(VACÍO / undefined)'}
+p.coachNombre = ${p.coachNombre || '(vacío)'}
+marca.logoUrl = ${marca.logoUrl ? 'SÍ presente ('+marca.logoUrl.length+' caracteres)' : 'NO / vacío'}
+marca.piePagina = ${marca.piePagina ? 'SÍ presente: "'+marca.piePagina.slice(0,40)+'..."' : 'NO / vacío'}
+CURRENT_USER.uid (quien ve esto ahora) = ${CURRENT_USER?.uid || '(no logueado)'}
+¿coachId === mi propio uid? = ${p.coachId===CURRENT_USER?.uid ? 'SÍ' : 'NO'}</div>` : '';
   const brandHeader = marca.logoUrl || marca.piePagina ? `
     <div class="coach-brand-header no-print-hide">
       ${marca.logoUrl ? `<img src="${marca.logoUrl}" class="coach-brand-logo" alt="Logo coach"/>` : ''}
@@ -1959,6 +1966,7 @@ async function renderPatientView(p, plan) {
 
   document.getElementById('planContent').innerHTML = `
     ${canUpload ? `<button class="back-btn no-print" onclick="goTab('dashboard')"><i class="ti ti-arrow-left"></i> Dashboard</button>` : ''}
+    ${debugMarca}
     ${brandHeader}
     <div class="plan-hero">
       <div class="avatar ${avCls}" style="width:48px;height:48px;font-size:16px">${av}</div>
