@@ -825,6 +825,22 @@ main{padding-top:var(--nav)}
   <div id="dw-interp-new" class="alert alert-warn" style="margin-top:.75rem;font-size:13px"></div>
 </div></div>
 
+<!-- BÁSCULA DE BIOIMPEDANCIA -->
+<div class="card">
+<div class="card-title"><i class="ti ti-scale"></i> Báscula de Bioimpedancia (opcional)</div>
+<p style="font-size:13px;color:var(--tx2);margin-bottom:1rem">Sube una foto de la pantalla o el reporte de la báscula de bioimpedancia. La IA leerá los datos y los rellenará automáticamente (peso, % grasa, masa magra, agua, hueso, grasa visceral, edad metabólica).</p>
+<div class="upload-zone" id="bio-dropzone-new">
+  <input type="file" accept="image/*" onchange="handleBioFile(event,'new')" id="bio-fileInput-new">
+  <i class="ti ti-cloud-upload"></i>
+  <div class="upload-txt">Toca para seleccionar la imagen</div>
+  <div class="upload-sub">Foto de la pantalla o reporte de la báscula</div>
+</div>
+<div id="bio-fileList-new"></div>
+<button class="btn-sm" style="margin-top:.75rem" onclick="leerBioimpedancia('new')" id="btnLeerBio-new"><i class="ti ti-scan"></i> Leer datos con IA</button>
+<div class="loading-row" id="bioLoading-new"><div class="spinner-sm"></div><span>Leyendo datos de la báscula con IA...</span></div>
+<div id="bio-result-new" style="margin-top:.75rem"></div>
+</div>
+
 <!-- ANÁLISIS CLÍNICOS -->
 <div class="card">
 <div class="card-title"><i class="ti ti-microscope"></i> Análisis clínicos (opcional)</div>
@@ -871,6 +887,7 @@ let CURRENT_USER   = null;  // Firebase Auth user
 let CURRENT_ROLE   = null;  // 'master' | 'coach' | 'patient'
 let CURRENT_COACH_ID = null; // UID del coach (para master que navega su panel)
 let supleItems     = [];    // [{nombre, dosis}]
+let uploadedBioFile = { new:null, pv:null }; // imagen de báscula de bioimpedancia
 let uploadedFiles  = { np:[], pat:[] };
 let weightChartInst = null;
 let _durninTemp    = null;
@@ -1161,6 +1178,10 @@ function resetNuevoForm(){
   document.getElementById('genLoading').classList.remove('show');
   document.getElementById('btnGenerar').disabled=false;
   window._renewUid = null;
+  window._bioNew = null;
+  uploadedBioFile.new = null;
+  const bfl=document.getElementById('bio-fileList-new'); if(bfl) bfl.innerHTML='';
+  const br=document.getElementById('bio-result-new'); if(br) br.innerHTML='';
 }
 
 /* ════════════════════════════════════════════════════════════
@@ -1901,13 +1922,7 @@ async function renderPatientView(p, plan) {
     </div>`).join('') || '<div style="font-size:13px;color:var(--tx3);padding:.5rem 0">Sin análisis registrados.</div>';
 
   // Composición corporal hist
-  const compHist = (p.composicion||[]).slice().reverse().map(c=>`
-    <div class="comp-hist-row">
-      <span class="chr-date">${c.fecha}</span>
-      <span class="chr-pct">${c.pct.toFixed(1)}%</span>
-      <span class="chr-lean">💪 ${c.masaMagra.toFixed(1)}kg magra</span>
-      <span class="chr-cls">${c.clasificacion}</span>
-    </div>`).join('') || '<div style="font-size:13px;color:var(--tx3);padding:.5rem 0">Sin mediciones registradas.</div>';
+  const compHist = renderCompHistList(p.composicion);
 
   // Notas coach (solo visible para master/coach)
   const notasCoachHTML = canUpload ? `
@@ -2230,6 +2245,21 @@ async function renderPatientView(p, plan) {
           ${canUpload ? `<div style="margin-top:.75rem"><button class="btn-sm" id="savePlicoBtn" onclick="saveComposicion('${p.id}')"><i class="ti ti-device-floppy"></i> Guardar medición en historial</button></div>` : ''}
         </div>
       </div>
+      ${canUpload ? `
+      <div class="card">
+        <div class="card-title"><i class="ti ti-scale"></i> Báscula de Bioimpedancia</div>
+        <p style="font-size:13px;color:var(--tx2);margin-bottom:1rem">Sube la foto de la báscula y la IA registrará la medición en el historial automáticamente.</p>
+        <div class="upload-zone" id="bio-dropzone-pv">
+          <input type="file" accept="image/*" onchange="handleBioFile(event,'pv')" id="bio-fileInput-pv">
+          <i class="ti ti-cloud-upload"></i>
+          <div class="upload-txt">Toca para seleccionar la imagen</div>
+          <div class="upload-sub">Foto de la pantalla o reporte de la báscula</div>
+        </div>
+        <div id="bio-fileList-pv"></div>
+        <button class="btn-sm" style="margin-top:.75rem" onclick="leerBioimpedancia('pv','${p.id}')" id="btnLeerBio-pv"><i class="ti ti-scan"></i> Leer y guardar en historial</button>
+        <div class="loading-row" id="bioLoading-pv"><div class="spinner-sm"></div><span>Leyendo datos de la báscula con IA...</span></div>
+        <div id="bio-result-pv" style="margin-top:.75rem"></div>
+      </div>` : ''}
       <div class="card">
         <div class="card-title"><i class="ti ti-history"></i> Historial de mediciones</div>
         <div id="compHistList">${compHist}</div>
@@ -2436,6 +2466,7 @@ function savePhoto(uid, view, input) {
 async function saveComposicion(uid) {
   const result = calcDurnin('pv');
   if(!result){alert('Calcula primero los pliegues.');return;}
+  result.metodo = 'plicometria';
   const {db, doc, updateDoc} = window.SV;
   const composicion = [...(CURRENT_PAT.composicion||[]),result];
   // Also save current perimeters snapshot if available
@@ -2452,13 +2483,140 @@ async function saveComposicion(uid) {
   const btn=document.getElementById('savePlicoBtn');
   if(btn){btn.innerHTML='<i class="ti ti-check"></i> Guardado';btn.disabled=true;}
   const histEl=document.getElementById('compHistList');
-  if(histEl) histEl.innerHTML=composicion.slice().reverse().map(c=>`
+  if(histEl) histEl.innerHTML=renderCompHistList(composicion);
+}
+
+/* ── HISTORIAL DE COMPOSICIÓN (compartido) ──────────────── */
+function renderCompHistList(composicion){
+  return (composicion||[]).slice().reverse().map(c=>`
     <div class="comp-hist-row">
-      <span class="chr-date">${c.fecha}</span>
-      <span class="chr-pct">${c.pct.toFixed(1)}%</span>
-      <span class="chr-lean">💪 ${c.masaMagra.toFixed(1)}kg magra</span>
-      <span class="chr-cls">${c.clasificacion}</span>
-    </div>`).join('');
+      <span class="chr-date">${c.fecha}${c.metodo==='bioimpedancia'?' <i class="ti ti-scale" title="Bioimpedancia" style="color:var(--t)"></i>':''}</span>
+      <span class="chr-pct">${(c.pct||0).toFixed(1)}%</span>
+      <span class="chr-lean">💪 ${(c.masaMagra||0).toFixed(1)}kg magra</span>
+      <span class="chr-cls">${c.clasificacion||''}</span>
+    </div>`).join('') || '<div style="font-size:13px;color:var(--tx3);padding:.5rem 0">Sin mediciones registradas.</div>';
+}
+
+/* ── BÁSCULA DE BIOIMPEDANCIA ────────────────────────────── */
+function handleBioFile(e, ctx){
+  const f = e.target.files[0];
+  if(!f) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    uploadedBioFile[ctx] = {name:f.name, size:f.size, type:f.type, data:ev.target.result};
+    const el = document.getElementById('bio-fileList-'+ctx);
+    if(el) el.innerHTML = `<div class="file-preview"><i class="ti ti-photo fp-icon"></i><div><div class="fp-name">${f.name}</div><div class="fp-size">${(f.size/1024).toFixed(1)} KB</div></div><button class="fp-del" onclick="removeBioFile('${ctx}')"><i class="ti ti-x"></i></button></div>`;
+  };
+  reader.readAsDataURL(f);
+}
+function removeBioFile(ctx){
+  uploadedBioFile[ctx]=null;
+  const el=document.getElementById('bio-fileList-'+ctx);
+  if(el) el.innerHTML='';
+}
+
+async function leerBioimpedancia(ctx, uid){
+  const file = uploadedBioFile[ctx];
+  const resEl = document.getElementById('bio-result-'+ctx);
+  const loadEl = document.getElementById('bioLoading-'+ctx);
+  const btn = document.getElementById('btnLeerBio-'+ctx);
+  if(!file){ if(resEl) resEl.innerHTML='<div class="alert alert-warn"><i class="ti ti-alert-circle"></i> Sube primero una imagen de la báscula.</div>'; return; }
+  if(loadEl) loadEl.classList.add('show');
+  if(btn) btn.disabled=true;
+  if(resEl) resEl.innerHTML='';
+  try{
+    const content=[
+      {type:'image',source:{type:'base64',media_type:file.type,data:file.data.split(',')[1]}},
+      {type:'text',text:`Eres un asistente que extrae datos de fotos de básculas/analizadores de bioimpedancia corporal (Omron, Tanita, InBody, Xiaomi, etc.). Lee TODOS los valores numéricos visibles en la imagen.
+
+Responde SOLO en JSON válido sin backticks:
+{"peso_kg":0,"grasa_pct":0,"masa_grasa_kg":0,"masa_magra_kg":0,"musculo_pct":0,"agua_pct":0,"masa_osea_kg":0,"grasa_visceral":0,"edad_metabolica":0,"imc":0,"tmb_kcal":0,"campos_no_visibles":["nombre de cada campo que NO aparezca en la imagen"]}
+
+Si un valor no aparece en la imagen, pon 0 y agrégalo a "campos_no_visibles". NO inventes datos que no estén visibles.`}
+    ];
+    const res = await fetch("/api/claude-proxy",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:1000,messages:[{role:"user",content}]})});
+    const data = await res.json();
+    if(!data?.content?.length) throw new Error(data?.error?.message||'Sin respuesta');
+    let rawText = data.content.map(b=>b.text||'').join('').trim();
+    let jsonStr = rawText;
+    const jm = rawText.match(/```json\s*([\s\S]*?)\s*```/);
+    if(jm) jsonStr = jm[1];
+    else { const f2=rawText.indexOf('{'), l=rawText.lastIndexOf('}'); if(f2>=0&&l>f2) jsonStr=rawText.slice(f2,l+1); }
+    jsonStr = repairJSON(jsonStr);
+    const bio = JSON.parse(jsonStr);
+    await aplicarBioimpedancia(ctx, bio, uid);
+  }catch(e){
+    if(resEl) resEl.innerHTML = `<div class="alert alert-err"><i class="ti ti-x"></i> Error al leer la báscula: ${e.message}</div>`;
+  }
+  if(loadEl) loadEl.classList.remove('show');
+  if(btn) btn.disabled=false;
+}
+
+function renderBioResult(bio, sexo){
+  const cls = (bio.grasa_pct && sexo) ? getFatClass(sexo, bio.grasa_pct) : null;
+  return `
+    <div class="durnin-results">
+      ${bio.peso_kg?`<div class="durnin-card"><div class="dc-lbl">Peso</div><div class="dc-val">${bio.peso_kg}</div><div class="dc-unit">kg</div></div>`:''}
+      ${bio.grasa_pct?`<div class="durnin-card fat"><div class="dc-lbl">% Grasa</div><div class="dc-val">${bio.grasa_pct}</div><div class="dc-unit">%</div></div>`:''}
+      ${bio.masa_magra_kg?`<div class="durnin-card lean"><div class="dc-lbl">Masa magra</div><div class="dc-val">${bio.masa_magra_kg}</div><div class="dc-unit">kg</div></div>`:''}
+      ${bio.musculo_pct?`<div class="durnin-card"><div class="dc-lbl">% Músculo</div><div class="dc-val">${bio.musculo_pct}</div><div class="dc-unit">%</div></div>`:''}
+      ${bio.agua_pct?`<div class="durnin-card"><div class="dc-lbl">% Agua</div><div class="dc-val">${bio.agua_pct}</div><div class="dc-unit">%</div></div>`:''}
+      ${bio.masa_osea_kg?`<div class="durnin-card"><div class="dc-lbl">Masa ósea</div><div class="dc-val">${bio.masa_osea_kg}</div><div class="dc-unit">kg</div></div>`:''}
+      ${bio.grasa_visceral?`<div class="durnin-card"><div class="dc-lbl">Grasa visceral</div><div class="dc-val">${bio.grasa_visceral}</div><div class="dc-unit">nivel</div></div>`:''}
+      ${bio.edad_metabolica?`<div class="durnin-card"><div class="dc-lbl">Edad metabólica</div><div class="dc-val">${bio.edad_metabolica}</div><div class="dc-unit">años</div></div>`:''}
+      ${bio.tmb_kcal?`<div class="durnin-card"><div class="dc-lbl">TMB</div><div class="dc-val">${bio.tmb_kcal}</div><div class="dc-unit">kcal</div></div>`:''}
+    </div>
+    ${cls?`<div class="alert alert-info" style="margin-top:.5rem;font-size:12px"><i class="ti ti-info-circle"></i> Clasificación: <b style="color:${cls.color}">${cls.label}</b></div>`:''}
+    ${bio.campos_no_visibles?.length?`<div class="alert alert-warn" style="margin-top:.5rem;font-size:11px"><i class="ti ti-alert-circle"></i> No se detectaron en la imagen: ${bio.campos_no_visibles.join(', ')}</div>`:''}
+    <div class="alert alert-ok" style="margin-top:.5rem;font-size:12px"><i class="ti ti-check"></i> Datos leídos correctamente.</div>
+  `;
+}
+
+async function aplicarBioimpedancia(ctx, bio, uid){
+  const resEl = document.getElementById('bio-result-'+ctx);
+  if(ctx==='new'){
+    const sexo = document.getElementById('np-sexo')?.value;
+    if(bio.peso_kg){ const pEl=document.getElementById('np-peso'); if(pEl){ pEl.value=bio.peso_kg; calcFormula(); } }
+    window._bioNew = bio;
+    if(resEl) resEl.innerHTML = renderBioResult(bio, sexo);
+  } else if(ctx==='pv'){
+    const sexo = CURRENT_PAT?.sexo;
+    if(resEl) resEl.innerHTML = renderBioResult(bio, sexo);
+    if(!uid) return;
+    await guardarComposicionBio(uid, bio);
+  }
+}
+
+async function guardarComposicionBio(uid, bio){
+  const {db, doc, updateDoc} = window.SV;
+  const sexo = CURRENT_PAT?.sexo || 'H';
+  const cls = bio.grasa_pct ? getFatClass(sexo, bio.grasa_pct) : null;
+  const entry = {
+    fecha: new Date().toISOString().split('T')[0],
+    metodo: 'bioimpedancia',
+    pct: +bio.grasa_pct || 0,
+    masaGrasa: +bio.masa_grasa_kg || 0,
+    masaMagra: +bio.masa_magra_kg || 0,
+    aguaPct: +bio.agua_pct || 0,
+    masaOsea: +bio.masa_osea_kg || 0,
+    grasaVisceral: +bio.grasa_visceral || 0,
+    edadMetabolica: +bio.edad_metabolica || 0,
+    tmbKcal: +bio.tmb_kcal || 0,
+    clasificacion: cls?.label || ''
+  };
+  const composicion = [...(CURRENT_PAT.composicion||[]), entry];
+  const updates = {composicion};
+  if(bio.peso_kg){
+    updates.peso = +bio.peso_kg;
+    const histPeso = [...(CURRENT_PAT.histPeso||[]), {fecha:entry.fecha, peso:+bio.peso_kg}].sort((a,b)=>a.fecha.localeCompare(b.fecha));
+    updates.histPeso = histPeso;
+    CURRENT_PAT.histPeso = histPeso;
+    CURRENT_PAT.peso = +bio.peso_kg;
+  }
+  await updateDoc(doc(db,'users',uid), updates);
+  CURRENT_PAT.composicion = composicion;
+  const histEl = document.getElementById('compHistList');
+  if(histEl) histEl.innerHTML = renderCompHistList(composicion);
 }
 
 /* ── NOTAS COACH ────────────────────────────────────────── */
@@ -2850,9 +3008,27 @@ async function generarPlan(){
     createdAt:serverTimestamp()
   };
 
-  // Calcular plicometría si se ingresó
+  // Calcular plicometría y/o bioimpedancia si se ingresaron
   const dwResult = calcDurnin('new');
-  if(dwResult) pat.composicion=[dwResult];
+  pat.composicion = [];
+  if(dwResult) pat.composicion.push({...dwResult, metodo:'plicometria'});
+  if(window._bioNew){
+    const bio = window._bioNew;
+    const clsBio = bio.grasa_pct ? getFatClass(sexo, bio.grasa_pct) : null;
+    pat.composicion.push({
+      fecha: new Date().toISOString().split('T')[0],
+      metodo: 'bioimpedancia',
+      pct: +bio.grasa_pct || 0,
+      masaGrasa: +bio.masa_grasa_kg || 0,
+      masaMagra: +bio.masa_magra_kg || 0,
+      aguaPct: +bio.agua_pct || 0,
+      masaOsea: +bio.masa_osea_kg || 0,
+      grasaVisceral: +bio.grasa_visceral || 0,
+      edadMetabolica: +bio.edad_metabolica || 0,
+      tmbKcal: +bio.tmb_kcal || 0,
+      clasificacion: clsBio?.label || ''
+    });
+  }
 
   const m=calcMacros(pat);
   const imc=(+peso/((+talla/100)**2)).toFixed(1);
