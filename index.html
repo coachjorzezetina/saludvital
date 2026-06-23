@@ -1376,7 +1376,7 @@ async function getCoachMarca(coachId) {
     if(!snap.exists()) return {logoUrl:null, piePagina:''};
     const d = snap.data();
     return {logoUrl: d.logoUrl||null, piePagina: d.piePagina||''};
-  } catch(e) { return {logoUrl:null, piePagina:''}; }
+  } catch(e) { console.error('ERROR AL LEER MARCA DEL COACH:', e.code||'', e.message); return {logoUrl:null, piePagina:''}; }
 }
 
 /* ════════════════════════════════════════════════════════════
