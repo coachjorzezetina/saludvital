@@ -952,6 +952,24 @@ function repairJSON(str) {
   return out;
 }
 
+/* ── VIDEOS DE YOUTUBE DEL CANAL DEL COACH ──────────────── */
+async function resolverVideosYoutube(plan) {
+  if(!plan?.entrenamiento?.length) return plan;
+  const tareas = [];
+  plan.entrenamiento.forEach(dia=>{
+    (dia.ejercicios||[]).forEach(ej=>{
+      tareas.push(
+        fetch('/api/youtube-search?q='+encodeURIComponent(ej.nombre))
+          .then(r=>r.ok ? r.json() : null)
+          .then(d=>{ if(d?.url) ej.youtube_url = d.url; })
+          .catch(()=>{}) // si falla, se queda el link de búsqueda general que ya trae el plan
+      );
+    });
+  });
+  await Promise.all(tareas);
+  return plan;
+}
+
 /* ── CONSTANTES DURNIN & WOMERSLEY (1974) ───────────────── */
 const DW = {
   H: [[17,19,1.1620,0.0630],[20,29,1.1631,0.0632],[30,39,1.1422,0.0544],[40,49,1.1620,0.0700],[50,99,1.1715,0.0779]],
@@ -1507,7 +1525,8 @@ Responde SOLO en JSON válido SIN texto extra, SIN backticks. Sé CONCISO:
     let jsonStr = rawText;
     if(rawText.includes('`')){const f=rawText.indexOf('{'),l=rawText.lastIndexOf('}');if(f>=0&&l>f)jsonStr=rawText.slice(f,l+1);}
     jsonStr = repairJSON(jsonStr);
-    const plan = JSON.parse(jsonStr);
+    let plan = JSON.parse(jsonStr);
+    plan = await resolverVideosYoutube(plan);
 
     document.getElementById('updatePlanModal')?.remove();
     showPlanPreview({
@@ -2914,6 +2933,7 @@ Aplica ÚNICAMENTE esos cambios, mantén todo lo demás igual. Responde SOLO con
       else { const f=rawText.indexOf('{'), l=rawText.lastIndexOf('}'); if(f>=0&&l>f) jsonStr=rawText.slice(f,l+1); }
       jsonStr = repairJSON(jsonStr);
       workingPlan = JSON.parse(jsonStr);
+      workingPlan = await resolverVideosYoutube(workingPlan);
       render();
     } catch(e) {
       if(msgEl) msgEl.innerHTML = `<div class="alert alert-err" style="font-size:12px">Error: ${e.message}</div>`;
@@ -3114,6 +3134,8 @@ Responde SOLO en JSON válido SIN texto extra, SIN backticks. Sé CONCISO:
     document.getElementById('genLoading').classList.remove('show');
     document.getElementById('btnGenerar').disabled=false;
     msg.style.display='none';
+
+    plan = await resolverVideosYoutube(plan);
 
     showPlanPreview({
       plan: plan,
