@@ -475,8 +475,8 @@ main{padding-top:var(--nav)}
   body{background:#fff;color:#111;font-family:'Exo 2',sans-serif}
   .meal-card,.card,.plan-hero{border:1px solid #ccc;break-inside:avoid;page-break-inside:avoid}
   .mc-val,.fr-val,.ic-val{color:#111!important}
-  /* Mostrar dieta, entreno, suplementos, recetas, compras Y análisis de laboratorio */
-  #tp-plan,#tp-entreno,#tp-suple,#tp-recetas,#tp-compras,#tp-analisis{display:block!important}
+  /* Mostrar dieta, entreno, suplementos, compras Y análisis de laboratorio */
+  #tp-plan,#tp-entreno,#tp-suple,#tp-compras,#tp-analisis{display:block!important}
   .ptpanel{page-break-inside:avoid}
   /* Marca del coach imprime bien */
   .coach-brand-header,.coach-brand-footer{border:1px solid #ddd;-webkit-print-color-adjust:exact;print-color-adjust:exact}
@@ -1538,12 +1538,12 @@ DIETA: ${nuevaDieta} | ${nuevasComidas} comidas/día | Objetivo: ${nuevoObj}
 CLÍNICO: Condiciones: ${condiciones||'ninguna'} | Excluir: ${p.noCome||'nada'}
 ENTRENO: ${nuevoRutina}, ${nivel||'intermedio'}, ${nuevoFrec}d/sem, RIR ${rir||2}, énfasis ${enfasis||'ninguno'}
 SUPLEMENTOS OBLIGATORIOS DEL COACH — INCLUIR TODOS SIN EXCEPCIÓN: ${(suplementos||[]).join(', ')||'ninguno'}. Posología exacta guardada: ${nuevaPos||p.posologia||'usar dosis estándar'}. Solo estos suplementos, nada más.
-REGLAS DE ALIMENTOS — OBLIGATORIAS: 1) Todos los alimentos deben especificarse en GRAMOS y en CRUDO (peso antes de cocinar), nunca en porciones vagas ni en peso cocido. 2) Los macronutrientes (proteína, carbohidratos, grasas) deben repartirse de forma EQUITATIVA entre todas las comidas del día — ninguna comida debe concentrar desproporcionadamente los macros respecto a las demás.
+REGLAS DE ALIMENTOS — OBLIGATORIAS: 1) CANTIDADES EN UNIDADES NATURALES: Siempre que sea posible expresa la cantidad en unidades contables fáciles: "1 plátano mediano", "2 huevos", "10 almendras", "1 manzana mediana", "1 taza de avena". Solo usa gramos para alimentos que NO se pueden contar (aceites, polvos, granos sueltos, carnes) y SIEMPRE en CRUDO antes de cocinar. 2) Los macronutrientes (proteína, carbohidratos, grasas) deben repartirse de forma EQUITATIVA entre todas las comidas del día. 3) Cada comida DEBE incluir sus pasos de preparación en el campo "preparacion" (máximo 5 pasos concisos).
 ${nuevasNotas?'Cambios/Notas: '+nuevasNotas:''}
 ${sexo==='M' ? 'RESTRICCIÓN FEMENINA: PROHIBIDO pectoral y espalda agarre abierto.' : ''}
 
 Responde SOLO en JSON válido SIN texto extra, SIN backticks. Sé CONCISO:
-{"resumen":"2 oraciones","imc_nota":"1 oración","alerta_clinica":"","comidas":[{"nombre":"Desayuno","hora":"7:30 AM","icono":"coffee","kcal":400,"alimentos":[{"item":"alimento","cantidad":"cantidad"}]}],"suplementacion":[${supleJsonStr2}],"hidratacion":"recomendación","recomendaciones":["tip1","tip2","tip3"],"lista_compras":{"proteinas":["item"],"verduras":["item"],"frutas":["item"],"lacteos_sustitutos":[],"grasas":["item"],"carbohidratos":["item"],"otros":[]},"recetas":[{"nombre":"receta","tiempo":"15 min","ingredientes":["ing"],"instrucciones":"pasos breves"}],"entrenamiento":[{"dia":"Lunes","tipo":"músculo","ejercicios":[{"nombre":"ejercicio","series":"4","reps":"10","rir":"RIR ${p.rir||2}","notas":"","youtube_url":"https://www.youtube.com/results?search_query=ejercicio+tecnica"}]}]}`;
+{"resumen":"2 oraciones","imc_nota":"1 oración","alerta_clinica":"","comidas":[{"nombre":"Desayuno","hora":"7:30 AM","icono":"coffee","kcal":400,"alimentos":[{"item":"1 plátano mediano","cantidad":"120g crudo"},{"item":"Avena en hojuelas","cantidad":"60g crudo"}],"preparacion":["Paso 1","Paso 2","Paso 3"],"tiempo_prep":"5 min"}],"suplementacion":[${supleJsonStr2}],"hidratacion":"recomendación","recomendaciones":["tip1","tip2","tip3"],"lista_compras":{"proteinas":["item"],"verduras":["item"],"frutas":["item"],"lacteos_sustitutos":[],"grasas":["item"],"carbohidratos":["item"],"otros":[]},"entrenamiento":[{"dia":"Lunes","tipo":"músculo","ejercicios":[{"nombre":"ejercicio","series":"4","reps":"10","rir":"RIR ${p.rir||2}","notas":"","youtube_url":"https://www.youtube.com/results?search_query=ejercicio+tecnica"}]}]}`;
 
   try {
     const res = await fetch("/api/claude-proxy",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-haiku-4-5-20251001",max_tokens:8000,messages:[{role:"user",content:prompt}]})});
@@ -2033,7 +2033,7 @@ async function renderPatientView(p, plan) {
       <button class="ptab" onclick="swTab(this,'tp-peso');setTimeout(()=>initWeightChart('${p.id}'),120)"><i class="ti ti-trending-down"></i> Peso</button>
       <button class="ptab" onclick="swTab(this,'tp-comp')"><i class="ti ti-body-scan"></i> Composición</button>
       <button class="ptab" onclick="swTab(this,'tp-fotos')"><i class="ti ti-camera"></i> Fotos</button>
-      <button class="ptab" onclick="swTab(this,'tp-recetas')"><i class="ti ti-chef-hat"></i> Recetas</button>
+      <button class="ptab" onclick="swTab(this,'tp-recetas')" style="display:none"><i class="ti ti-chef-hat"></i> Recetas</button>
       <button class="ptab" onclick="swTab(this,'tp-compras')"><i class="ti ti-shopping-cart"></i> Compras</button>
       <button class="ptab" onclick="swTab(this,'tp-analisis')"><i class="ti ti-microscope"></i> Análisis</button>
     </div>
@@ -2053,7 +2053,18 @@ async function renderPatientView(p, plan) {
               <div><div class="meal-name">${c.nombre}</div><div class="meal-time">${c.hora}</div></div>
               <div class="meal-kcal">${c.kcal} kcal</div>
             </div>
-            <div class="meal-body">${(c.alimentos||[]).map(a=>`<div class="food-row"><span class="food-name">${a.item}</span><span class="food-qty">${a.cantidad}</span></div>`).join('')}</div>
+            <div class="meal-body">
+              ${(c.alimentos||[]).map(a=>`<div class="food-row"><span class="food-name">${a.item}</span><span class="food-qty">${a.cantidad}</span></div>`).join('')}
+              ${c.preparacion?.length ? `
+                <div style="margin-top:1rem;padding-top:.85rem;border-top:1px solid rgba(46,61,46,.4)">
+                  <div style="font-size:10px;letter-spacing:.12em;color:var(--tx3);text-transform:uppercase;font-weight:600;margin-bottom:.6rem"><i class="ti ti-chef-hat" style="margin-right:4px"></i>Preparación${c.tiempo_prep ? ' · ⏱ '+c.tiempo_prep : ''}</div>
+                  ${c.preparacion.map((paso,pi)=>`
+                    <div style="display:flex;gap:10px;padding:4px 0;font-size:12px;color:var(--tx2);line-height:1.5">
+                      <span style="font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;color:var(--t);flex-shrink:0;min-width:18px">${pi+1}</span>
+                      <span>${paso}</span>
+                    </div>`).join('')}
+                </div>` : ''}
+            </div>
           </div>`).join('')}
         ${plan.hidratacion ? `<div class="alert alert-info" style="margin-top:1rem;font-size:13px"><i class="ti ti-droplet"></i> <b>Hidratación:</b> ${plan.hidratacion}</div>` : ''}
         ${(plan.recomendaciones||[]).length ? `
@@ -3099,12 +3110,12 @@ DIETA: ${dieta} | ${comidas} comidas/día | Objetivo: ${objetivo}
 CLÍNICO: Intol: ${intol||'ninguna'} | Alergias: ${alergia||'ninguna'} | Condiciones: ${condiciones||'ninguna'} | Excluir: ${noCome||'nada'}
 ENTRENO: ${rutinaT}, ${nivel}, ${frec}d/sem, RIR ${rir}, énfasis ${enfasis}
 SUPLEMENTOS OBLIGATORIOS DEL COACH — DEBES incluir TODOS en el JSON sin excepción: ${suples.join(', ')||'ninguno'}. Posología exacta: ${posologia||'usar dosis estándar'}. NO agregues suplementos que no estén en esta lista.
-REGLAS DE ALIMENTOS — OBLIGATORIAS: 1) Todos los alimentos deben especificarse en GRAMOS y en CRUDO (peso antes de cocinar), nunca en porciones vagas ni en peso cocido. 2) Los macronutrientes (proteína, carbohidratos, grasas) deben repartirse de forma EQUITATIVA entre todas las comidas del día — ninguna comida debe concentrar desproporcionadamente los macros respecto a las demás.
+REGLAS DE ALIMENTOS — OBLIGATORIAS: 1) CANTIDADES EN UNIDADES NATURALES: Siempre que sea posible expresa la cantidad en unidades contables fáciles: "1 plátano mediano", "2 huevos", "10 almendras", "1 manzana mediana". Solo usa gramos para alimentos que NO se pueden contar (aceites, polvos, granos sueltos, carnes) y SIEMPRE en CRUDO antes de cocinar. 2) Los macronutrientes (proteína, carbohidratos, grasas) deben repartirse de forma EQUITATIVA entre todas las comidas del día. 3) Cada comida DEBE incluir sus pasos de preparación en el campo "preparacion" (máximo 5 pasos concisos).
 ${notas?'Notas: '+notas:''}
 ${cuello?`PERÍMETROS (cm): Cuello ${cuello} | Hombros ${espalda||'-'} | Brazo D ${brazoD||'-'} / I ${brazoI||'-'} | Cintura alta ${cinturaA||'-'} / baja ${cinturaB||'-'} | Cadera ${cadera||'-'} | Muslo D ${musloD||'-'} / I ${musloI||'-'} | Pantorrilla D ${pantoD||'-'} / I ${pantoI||'-'}`:''}
 
 Responde SOLO en JSON válido SIN texto extra, SIN backticks. Sé CONCISO:
-{"resumen":"2 oraciones","imc_nota":"1 oración","alerta_clinica":"","comidas":[{"nombre":"Desayuno","hora":"7:30 AM","icono":"coffee","kcal":400,"alimentos":[{"item":"alimento","cantidad":"cantidad"}]}],"suplementacion":[${supleJsonStr}],"hidratacion":"recomendación","recomendaciones":["tip1","tip2","tip3"],"lista_compras":{"proteinas":["item"],"verduras":["item"],"frutas":["item"],"lacteos_sustitutos":[],"grasas":["item"],"carbohidratos":["item"],"otros":[]},"recetas":[{"nombre":"receta","tiempo":"15 min","ingredientes":["ing"],"instrucciones":"pasos breves"}],"entrenamiento":[{"dia":"Lunes","tipo":"músculo","ejercicios":[{"nombre":"ejercicio","series":"4","reps":"10","rir":"RIR ${rir}","notas":"","youtube_url":"https://www.youtube.com/results?search_query=ejercicio+tecnica"}]}]}`;
+{"resumen":"2 oraciones","imc_nota":"1 oración","alerta_clinica":"","comidas":[{"nombre":"Desayuno","hora":"7:30 AM","icono":"coffee","kcal":400,"alimentos":[{"item":"1 plátano mediano","cantidad":"120g crudo"},{"item":"Avena en hojuelas","cantidad":"60g crudo"}],"preparacion":["Paso 1","Paso 2","Paso 3"],"tiempo_prep":"5 min"}],"suplementacion":[${supleJsonStr}],"hidratacion":"recomendación","recomendaciones":["tip1","tip2","tip3"],"lista_compras":{"proteinas":["item"],"verduras":["item"],"frutas":["item"],"lacteos_sustitutos":[],"grasas":["item"],"carbohidratos":["item"],"otros":[]},"entrenamiento":[{"dia":"Lunes","tipo":"músculo","ejercicios":[{"nombre":"ejercicio","series":"4","reps":"10","rir":"RIR ${rir}","notas":"","youtube_url":"https://www.youtube.com/results?search_query=ejercicio+tecnica"}]}]}`;
 
   // Check renewal mode BEFORE try block (scope fix)
   const isRenewal = !!window._renewUid;
