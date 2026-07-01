@@ -90,26 +90,51 @@ html,body{font-family:'Exo 2',system-ui,sans-serif;background:var(--d);color:var
 /* ══════════════════════════════════════════════
    NAV
 ══════════════════════════════════════════════ */
-.nav{display:flex;align-items:center;justify-content:space-between;padding:0 1.1rem;height:var(--nav);background:rgba(26,31,26,.92);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid rgba(46,61,46,.6);position:fixed;top:0;left:0;right:0;z-index:200;gap:8px}
-.brand{display:flex;align-items:center;gap:8px;flex-shrink:0}
-.brand-name{font-family:'Rajdhani',sans-serif;font-size:20px;font-weight:600;letter-spacing:.04em}
+.nav{display:flex;align-items:center;justify-content:space-between;padding:0 1.1rem;height:var(--nav);background:rgba(26,31,26,.92);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid rgba(46,61,46,.6);position:fixed;top:0;left:0;right:0;z-index:200;gap:6px}
+.brand{display:flex;align-items:center;gap:8px;flex-shrink:0;min-width:0}
+.brand-name{font-family:'Rajdhani',sans-serif;font-size:20px;font-weight:600;letter-spacing:.04em;white-space:nowrap}
 .brand-sv{color:var(--g)}.brand-vt{color:var(--t)}
 .brand-sub{font-size:9px;color:var(--tx3);letter-spacing:.14em;text-transform:uppercase;display:block;margin-top:-4px}
-.spine{display:flex;flex-direction:column;align-items:center;gap:2px}
+.spine{display:flex;flex-direction:column;align-items:center;gap:2px;flex-shrink:0}
 .spine span{display:block;border-radius:50%}
 .s1{width:8px;height:8px;background:var(--t)}.s2{width:6px;height:6px;background:var(--g)}
 .s3{width:5px;height:5px;background:var(--t);opacity:.7}.s4{width:4px;height:4px;background:var(--g);opacity:.5}
-.nav-tabs{display:flex;gap:3px;background:rgba(0,0,0,.2);border-radius:22px;padding:3px}
-.ntab{font-family:'Exo 2',sans-serif;font-size:12px;padding:5px 12px;border-radius:18px;border:none;background:none;cursor:pointer;color:var(--tx2);white-space:nowrap;transition:all .2s}
+/* nav-tabs: flex:1 + min-width:0 para que se comprima y nunca empuje al logout fuera de pantalla */
+.nav-tabs{display:flex;gap:3px;background:rgba(0,0,0,.2);border-radius:22px;padding:3px;flex:1;min-width:0;justify-content:center;overflow:hidden}
+.ntab{font-family:'Exo 2',sans-serif;font-size:12px;padding:5px 12px;border-radius:18px;border:none;background:none;cursor:pointer;color:var(--tx2);white-space:nowrap;transition:all .2s;flex-shrink:0}
+/* Texto de los tabs: visible en pantallas anchas */
+.ntab .ntab-text{display:inline}
 .ntab.active{background:var(--gd);color:var(--g);font-weight:600;box-shadow:0 0 0 1px rgba(106,191,75,.3)}
 .ntab:hover:not(.active){background:rgba(255,255,255,.05);color:var(--tx)}
+/* nav-right: nunca se comprime, logout siempre visible */
 .nav-right{display:flex;align-items:center;gap:6px;flex-shrink:0}
 .role-pill{font-size:11px;padding:4px 12px;border-radius:20px;font-weight:500;white-space:nowrap}
 .pill-master{background:var(--gd);color:var(--g);border:1px solid var(--g2)}
 .pill-coach{background:var(--td);color:var(--t);border:1px solid var(--t2)}
 .pill-patient{background:var(--wd);color:var(--w);border:1px solid #7a5a10}
-.btn-logout{background:none;border:1px solid var(--b2);color:var(--tx2);width:34px;height:34px;border-radius:var(--rad);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;transition:all .12s}
+.btn-logout{background:none;border:1px solid rgba(58,77,58,.7);color:var(--tx2);width:36px;height:36px;border-radius:var(--rad);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;transition:all .15s;flex-shrink:0}
 .btn-logout:hover{border-color:var(--re);color:var(--re)}
+
+/* ── NAV RESPONSIVE (cubre fuentes grandes del sistema) ── */
+@media(max-width:650px){
+  .brand-sub{display:none}
+  .brand-name{font-size:17px}
+  .role-pill{display:none}
+  /* Solo íconos, sin texto */
+  .ntab .ntab-text{display:none}
+  .ntab{padding:7px 11px;font-size:16px}
+  .nav{padding:0 .85rem;gap:6px}
+  /* Quitar el fondo del contenedor — cada tab ya tiene su pill activa */
+  .nav-tabs{background:none;padding:2px;border-radius:0;gap:2px}
+}
+@media(max-width:380px){
+  /* Extra compacto para pantallas muy pequeñas */
+  .brand-name{font-size:15px}
+  .spine{display:none}
+  .nav{padding:0 .65rem;gap:4px}
+  .ntab{padding:6px 9px;font-size:15px}
+  .btn-logout{width:32px;height:32px;font-size:15px}
+}
 
 /* ══════════════════════════════════════════════
    PANTALLAS
@@ -470,9 +495,9 @@ main{padding-top:var(--nav)}
     </div>
   </div>
   <div class="nav-tabs" id="navTabs" style="display:none">
-    <button class="ntab active" onclick="goTab(&#39;dashboard&#39;)"><i class="ti ti-layout-dashboard"></i> Dashboard</button>
-    <button class="ntab" onclick="goTab(&#39;nuevo&#39;)" id="tabNuevo"><i class="ti ti-user-plus"></i> Nuevo</button>
-    <button class="ntab" onclick="goTab(&#39;entrenadores&#39;)" id="tabEntrenadores" style="display:none"><i class="ti ti-users"></i> Entrenadores</button>
+    <button class="ntab active" onclick="goTab('dashboard')"><i class="ti ti-layout-dashboard"></i> <span class="ntab-text">Dashboard</span></button>
+    <button class="ntab" onclick="goTab('nuevo')" id="tabNuevo"><i class="ti ti-user-plus"></i> <span class="ntab-text">Nuevo</span></button>
+    <button class="ntab" onclick="goTab('entrenadores')" id="tabEntrenadores" style="display:none"><i class="ti ti-users"></i> <span class="ntab-text">Entrenadores</span></button>
   </div>
   <div class="nav-right">
     <div id="roleLabel" style="display:none"></div>
